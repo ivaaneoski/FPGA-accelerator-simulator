@@ -24,11 +24,11 @@ export function RooflineChart({ points, computeRoof, memoryRoof }: RooflineChart
 
   const CustomDot = (props: any) => {
     const { cx, cy, payload } = props;
-    const fill = payload.bound === 'compute' ? '#ef4444' : '#6366f1';
+    const fill = payload.bound === 'compute' ? '#E03E3E' : '#0B6E99';
     return (
       <g>
-        <circle cx={cx} cy={cy} r={6} fill={fill} stroke="#fff" strokeWidth={1} />
-        <text x={cx + 8} y={cy - 6} fill="#94a3b8" fontSize={11}>{payload.name}</text>
+        <circle cx={cx} cy={cy} r={5} fill={fill} stroke="#ffffff" strokeWidth={1.5} />
+        <text x={cx + 8} y={cy - 6} fill="#8c8c8c" fontSize={11}>{payload.name}</text>
       </g>
     );
   };
@@ -36,16 +36,19 @@ export function RooflineChart({ points, computeRoof, memoryRoof }: RooflineChart
   return (
     <ResponsiveContainer width="100%" height={350}>
       <ScatterChart margin={{ top: 20, right: 30, bottom: 40, left: 50 }}>
-        <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
+        <CartesianGrid strokeDasharray="3 3" stroke="#e9e5e3" />
         <XAxis
           dataKey="x"
           type="number"
           scale="log"
           domain={['auto', 'auto']}
           tickFormatter={(v) => v.toFixed(1)}
-          stroke="#94a3b8"
+          stroke="#8c8c8c"
+          tick={{ fontSize: 12, fill: '#8c8c8c' }}
+          axisLine={{ stroke: '#e9e5e3' }}
+          tickLine={false}
         >
-          <Label value="Arithmetic Intensity (OPs/Byte)" position="bottom" offset={20} fill="#94a3b8" />
+          <Label value="Arithmetic Intensity (OPs/Byte)" position="bottom" offset={20} fill="#8c8c8c" fontSize={12} />
         </XAxis>
         <YAxis
           dataKey="y"
@@ -53,29 +56,32 @@ export function RooflineChart({ points, computeRoof, memoryRoof }: RooflineChart
           scale="log"
           domain={['auto', 'auto']}
           tickFormatter={(v) => `${v}`}
-          stroke="#94a3b8"
+          stroke="#8c8c8c"
+          tick={{ fontSize: 12, fill: '#8c8c8c' }}
+          axisLine={{ stroke: '#e9e5e3' }}
+          tickLine={false}
         >
-          <Label value="Performance (GOPs/s)" angle={-90} position="insideLeft" offset={-10} fill="#94a3b8" />
+          <Label value="Performance (GOPs/s)" angle={-90} position="insideLeft" offset={-10} fill="#8c8c8c" fontSize={12} />
         </YAxis>
         <Tooltip
-          cursor={{ strokeDasharray: '3 3' }}
+          cursor={{ strokeDasharray: '3 3', stroke: 'rgba(55, 53, 47, 0.16)' }}
           content={({ payload }) => {
             if (!payload?.length) return null;
             const d = payload[0].payload;
             if (d.name === "Roofline") return null;
             return (
-              <div className="bg-slate-800 border border-slate-700 p-2 rounded text-xs shadow-lg">
-                <p className="font-bold text-slate-100">{d.name}</p>
-                <p className="text-slate-400">AI: {d.arithmeticIntensity?.toFixed(2)} OPs/Byte</p>
-                <p className="text-slate-400">Perf: {d.performance?.toFixed(1)} GOPs/s</p>
-                <p className={d.bound === 'compute' ? 'text-red-400 font-semibold' : 'text-indigo-400 font-semibold'}>
+              <div className="bg-[#ffffff] border border-[#e9e5e3] p-2.5 rounded shadow-[rgba(15,15,15,0.1)_0px_3px_6px] text-[13px] text-notion-textSecondary dark:text-notionDark-textSecondary">
+                <p className="font-semibold text-notion-text dark:text-notionDark-text mb-1">{d.name}</p>
+                <p>AI: <span className="text-notion-text dark:text-notionDark-text">{d.arithmeticIntensity?.toFixed(2)}</span> OPs/Byte</p>
+                <p>Perf: <span className="text-notion-text dark:text-notionDark-text">{d.performance?.toFixed(1)}</span> GOPs/s</p>
+                <p className={d.bound === 'compute' ? 'text-[#E03E3E] font-medium' : 'text-[#0B6E99] font-medium'}>
                   {d.bound === 'compute' ? 'Compute-bound' : 'Memory-bound'}
                 </p>
               </div>
             );
           }}
         />
-        <Scatter data={roofData} dataKey="y" line={{ stroke: '#f59e0b', strokeWidth: 2, strokeDasharray: "6 3" }} shape={() => <g></g>} name="Roofline" fill="#f59e0b" />
+        <Scatter data={roofData} dataKey="y" line={{ stroke: '#D9730D', strokeWidth: 2, strokeDasharray: "4 4" }} shape={() => <g></g>} name="Roofline" fill="#D9730D" />
         <Scatter
           data={points.map(p => ({ ...p, x: p.arithmeticIntensity, y: p.performance }))}
           dataKey="y"

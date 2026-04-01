@@ -15,32 +15,32 @@ export function ResourceCard({ title, value, total, unit, isLoading, isBram = fa
   
   if (isLoading) {
     return (
-      <div className="bg-slate-800 border border-slate-700 rounded-xl p-6 shadow-[0_2px_8px_rgba(0,0,0,0.3)]">
-        <div className="h-6 w-32 skeleton rounded-md mb-4" />
-        <div className="h-8 w-48 skeleton rounded-md mb-2" />
-        <div className="h-[6px] w-full skeleton rounded-full" />
+      <div className="bg-notion-bg dark:bg-notionDark-bg border border-notion-border dark:border-notionDark-border rounded px-4 py-3 shadow-sm flex flex-col gap-2">
+        <div className="h-3 w-24 skeleton rounded mb-1" />
+        <div className="h-6 w-32 skeleton rounded" />
+        <div className="h-1 w-full skeleton rounded-full mt-2" />
       </div>
     );
   }
 
   return (
-    <div className="bg-slate-800 border border-slate-700 rounded-xl p-6 shadow-[0_2px_8px_rgba(0,0,0,0.3)]">
-      <h3 className="text-[20px] font-semibold text-slate-100 mb-2">{title}</h3>
-      <div className="flex items-baseline gap-2 mb-4">
-        <span className="text-[28px] font-bold text-slate-100">{value.toLocaleString()}</span>
-        <span className="text-xs text-slate-400 font-light">
+    <div className="bg-notion-bg dark:bg-notionDark-bg border border-notion-border dark:border-notionDark-border rounded px-4 py-3 shadow-sm flex flex-col justify-between">
+      <h3 className="text-[13px] font-semibold text-notion-textSecondary dark:text-notionDark-textSecondary truncate mb-1">{title}</h3>
+      <div className="flex items-baseline gap-1.5 mb-2">
+        <span className="text-[20px] font-bold text-notion-text dark:text-notionDark-text leading-tight">{value.toLocaleString()}</span>
+        <span className="text-[12px] text-notion-textSecondary dark:text-notionDark-textSecondary tabular-nums leading-tight">
           {total > 0 ? `/ ${total.toLocaleString()}` : ''} {unit}
         </span>
         {total > 0 && (
            <span className={cn(
-               "ml-auto text-sm font-semibold", 
-               percentage >= 80 ? 'text-red-500' : percentage >= 60 ? 'text-amber-500' : 'text-green-500'
+               "ml-auto text-[12px] font-medium leading-tight", 
+               percentage >= 80 ? 'text-[#E03E3E] dark:text-[#DF5452]' : percentage >= 60 ? 'text-[#D9730D] dark:text-[#C77D48]' : 'text-notion-textSecondary dark:text-notionDark-textSecondary'
            )}>
               ({percentage.toFixed(1)}%)
            </span>
         )}
       </div>
-      {total > 0 && <ProgressBar value={percentage} isBram={isBram} />}
+      {total > 0 && <ProgressBar value={percentage} isBram={isBram} className="mt-1" />}
     </div>
   );
 }

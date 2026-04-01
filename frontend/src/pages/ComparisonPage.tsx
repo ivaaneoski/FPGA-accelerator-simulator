@@ -14,23 +14,25 @@ export function ComparisonPage() {
     lutPct: cfg.result.fpga_utilization.lut_pct,
     dspPct: cfg.result.fpga_utilization.dsp_pct,
     bramPct: cfg.result.fpga_utilization.bram_pct,
-    latencyNorm: (cfg.result.total.latency_us / maxLatency) * 100, // lower latency is better, but this normalizes 0-100
-    throughputNorm: (cfg.result.total.throughput_inf_per_sec / maxTp) * 100, // higher is better
+    latencyNorm: (cfg.result.total.latency_us / maxLatency) * 100,
+    throughputNorm: (cfg.result.total.throughput_inf_per_sec / maxTp) * 100,
   }));
 
   return (
-    <div className="flex flex-col gap-6 p-6">
-      <h1 className="text-[32px] font-bold text-slate-100">Comparison</h1>
+    <div className="flex flex-col gap-8 max-w-[1200px] mx-auto w-full p-6 md:p-10 animate-fade-in">
+      <div className="border-b border-notion-border dark:border-notionDark-border pb-4 mb-2">
+         <h1 className="text-[28px] font-bold text-notion-text dark:text-notionDark-text tracking-tight">Comparison</h1>
+      </div>
       
       {radarConfigs.length > 0 && (
-         <div className="bg-slate-800 border border-slate-700 rounded-xl p-6 shadow-sm">
-           <h3 className="text-xl font-semibold text-slate-100 mb-6 text-center">Config Radar (Recent 3)</h3>
+         <div className="bg-notion-bg dark:bg-notionDark-bg border border-notion-border dark:border-notionDark-border rounded px-6 py-5 shadow-[0_1px_2px_rgba(0,0,0,0.03)] w-full max-w-[800px] mx-auto">
+           <h3 className="text-[16px] font-semibold text-notion-text dark:text-notionDark-text mb-6 text-center">Config Radar (Recent 3)</h3>
            <ConfigRadarChart configs={radarConfigs} />
          </div>
       )}
 
       <div>
-        <h3 className="text-xl font-semibold text-slate-100 mb-4">Saved Configurations</h3>
+        <h3 className="text-[16px] font-semibold text-notion-text dark:text-notionDark-text mb-4">Saved Configurations</h3>
         <ComparisonTable />
       </div>
     </div>

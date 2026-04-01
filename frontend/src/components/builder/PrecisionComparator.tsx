@@ -37,66 +37,66 @@ export function PrecisionComparator() {
   if (!layers.length) return null;
 
   const renderCell = (prec: 'fp32' | 'int8' | 'int4', renderFn: (res: EstimationResult) => string | number) => {
-     const isCurrent = layers.some(l => l.precision === prec); // simple check
+     const isCurrent = layers.some(l => l.precision === prec);
      const val = data[prec] ? renderFn(data[prec]) : 'N/A';
      return (
-       <td className={cn("px-4 py-3 text-sm text-right font-mono border-b border-slate-700", isCurrent ? 'text-indigo-400 font-semibold' : 'text-slate-100')}>
+       <td className={cn("px-4 py-3 text-[13px] text-right font-mono border-b border-notion-border dark:border-notionDark-border", isCurrent ? 'text-notion-tagBlueText dark:text-notionDark-tagBlueText font-semibold' : 'text-notion-text dark:text-notionDark-text')}>
          {val}
        </td>
      );
   };
 
   return (
-    <div className="bg-slate-800 border border-slate-700 rounded-xl p-6 shadow-sm overflow-x-auto">
-      <h3 className="text-xl font-semibold text-slate-100 mb-4">Precision Comparator</h3>
+    <div className="bg-notion-bg dark:bg-notionDark-bg border border-notion-border dark:border-notionDark-border rounded px-6 py-5 shadow-[0_1px_2px_rgba(0,0,0,0.03)] overflow-x-auto">
+      <h3 className="text-[16px] font-semibold text-notion-text dark:text-notionDark-text mb-4">Precision Comparator</h3>
       {isLoading ? (
          <div className="h-48 skeleton rounded-lg" />
       ) : (
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="bg-indigo-500/10">
-              <th className="px-4 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wider text-left rounded-tl-lg">Metric</th>
-              <th className="px-4 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wider text-right">FP32</th>
-              <th className="px-4 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wider text-right">INT8</th>
-              <th className="px-4 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wider text-right rounded-tr-lg">INT4</th>
+            <tr className="bg-[#f7f7f5] dark:bg-[#202020] border-y border-notion-border dark:border-notionDark-border">
+              <th className="px-4 py-2.5 text-[12px] font-medium text-notion-textSecondary dark:text-notionDark-textSecondary text-left">Metric</th>
+              <th className="px-4 py-2.5 text-[12px] font-medium text-notion-textSecondary dark:text-notionDark-textSecondary text-right">FP32</th>
+              <th className="px-4 py-2.5 text-[12px] font-medium text-notion-textSecondary dark:text-notionDark-textSecondary text-right">INT8</th>
+              <th className="px-4 py-2.5 text-[12px] font-medium text-notion-textSecondary dark:text-notionDark-textSecondary text-right">INT4</th>
             </tr>
           </thead>
           <tbody>
-            <tr className="hover:bg-indigo-500/5 transition-colors">
-              <td className="px-4 py-3 text-sm text-slate-100 border-b border-slate-700">LUTs</td>
+            <tr className="hover:bg-notion-bgHover dark:hover:bg-notionDark-bgHover transition-colors border-b border-notion-border dark:border-notionDark-border">
+              <td className="px-4 py-3 text-[13px] text-notion-text dark:text-notionDark-text">LUTs</td>
               {renderCell('fp32', r => r.total.luts.toLocaleString())}
               {renderCell('int8', r => r.total.luts.toLocaleString())}
               {renderCell('int4', r => r.total.luts.toLocaleString())}
             </tr>
-            <tr className="bg-white/5 hover:bg-indigo-500/5 transition-colors">
-              <td className="px-4 py-3 text-sm text-slate-100 border-b border-slate-700">DSPs</td>
+            <tr className="bg-[rgba(55,53,47,0.01)] dark:bg-[rgba(255,255,255,0.01)] hover:bg-notion-bgHover dark:hover:bg-notionDark-bgHover transition-colors border-b border-notion-border dark:border-notionDark-border">
+              <td className="px-4 py-3 text-[13px] text-notion-text dark:text-notionDark-text">DSPs</td>
               {renderCell('fp32', r => r.total.dsps.toLocaleString())}
               {renderCell('int8', r => r.total.dsps.toLocaleString())}
               {renderCell('int4', r => r.total.dsps.toLocaleString())}
             </tr>
-            <tr className="hover:bg-indigo-500/5 transition-colors">
-              <td className="px-4 py-3 text-sm text-slate-100 border-b border-slate-700">BRAMs</td>
+            <tr className="hover:bg-notion-bgHover dark:hover:bg-notionDark-bgHover transition-colors border-b border-notion-border dark:border-notionDark-border">
+              <td className="px-4 py-3 text-[13px] text-notion-text dark:text-notionDark-text">BRAMs</td>
               {renderCell('fp32', r => r.total.brams.toLocaleString())}
               {renderCell('int8', r => r.total.brams.toLocaleString())}
               {renderCell('int4', r => r.total.brams.toLocaleString())}
             </tr>
-            <tr className="bg-white/5 hover:bg-indigo-500/5 transition-colors">
-              <td className="px-4 py-3 text-sm text-slate-100 border-b border-slate-700">Latency (µs)</td>
+            <tr className="bg-[rgba(55,53,47,0.01)] dark:bg-[rgba(255,255,255,0.01)] hover:bg-notion-bgHover dark:hover:bg-notionDark-bgHover transition-colors border-b border-notion-border dark:border-notionDark-border">
+              <td className="px-4 py-3 text-[13px] text-notion-text dark:text-notionDark-text">Latency (µs)</td>
               {renderCell('fp32', r => r.total.latency_us.toFixed(2))}
               {renderCell('int8', r => r.total.latency_us.toFixed(2))}
               {renderCell('int4', r => r.total.latency_us.toFixed(2))}
             </tr>
-            <tr className="hover:bg-indigo-500/5 transition-colors">
-              <td className="px-4 py-3 text-sm text-slate-100 border-b border-slate-700">Throughput (inf/s)</td>
+            <tr className="hover:bg-notion-bgHover dark:hover:bg-notionDark-bgHover transition-colors border-b border-notion-border dark:border-notionDark-border">
+              <td className="px-4 py-3 text-[13px] text-notion-text dark:text-notionDark-text">Throughput (inf/s)</td>
               {renderCell('fp32', r => r.total.throughput_inf_per_sec.toLocaleString())}
               {renderCell('int8', r => r.total.throughput_inf_per_sec.toLocaleString())}
               {renderCell('int4', r => r.total.throughput_inf_per_sec.toLocaleString())}
             </tr>
-            <tr className="bg-white/5 hover:bg-indigo-500/5 transition-colors">
-              <td className="px-4 py-3 text-sm text-slate-100 border-b border-slate-700">Estimated Accuracy Loss</td>
-              <td className="px-4 py-3 text-sm text-right font-mono border-b border-slate-700 text-slate-100">0%</td>
-              <td className="px-4 py-3 text-sm text-right font-mono border-b border-slate-700 text-slate-100">~0.5%</td>
-              <td className="px-4 py-3 text-sm text-right font-mono border-b border-slate-700 text-slate-100">~2-4%</td>
+            <tr className="bg-[rgba(55,53,47,0.01)] dark:bg-[rgba(255,255,255,0.01)] hover:bg-notion-bgHover dark:hover:bg-notionDark-bgHover transition-colors border-b border-notion-border dark:border-notionDark-border">
+              <td className="px-4 py-3 text-[13px] text-notion-text dark:text-notionDark-text">Estimated Accuracy Loss</td>
+              <td className="px-4 py-3 text-[13px] text-right font-mono text-notion-text dark:text-notionDark-text">0%</td>
+              <td className="px-4 py-3 text-[13px] text-right font-mono text-notion-text dark:text-notionDark-text">~0.5%</td>
+              <td className="px-4 py-3 text-[13px] text-right font-mono text-notion-text dark:text-notionDark-text">~2-4%</td>
             </tr>
           </tbody>
         </table>

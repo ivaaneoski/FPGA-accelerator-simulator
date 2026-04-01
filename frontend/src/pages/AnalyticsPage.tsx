@@ -27,15 +27,19 @@ export function AnalyticsPage() {
   }
 
   return (
-    <div className="flex flex-col gap-6 p-6">
-      <h1 className="text-[32px] font-bold text-slate-100">Analytics</h1>
+    <div className="flex flex-col gap-8 max-w-[1200px] mx-auto w-full p-6 md:p-10 animate-fade-in">
+      <div className="border-b border-notion-border dark:border-notionDark-border pb-4 mb-2">
+         <h1 className="text-[28px] font-bold text-notion-text dark:text-notionDark-text tracking-tight">Analytics</h1>
+      </div>
       
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-        <div className="xl:col-span-2 bg-slate-800 border border-slate-700 rounded-xl p-6 shadow-sm">
-          <h3 className="text-xl font-semibold text-slate-100 mb-4">Roofline Model</h3>
-          <RooflineChart points={points} computeRoof={computeRoof} memoryRoof={memoryRoof} />
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+        <div className="xl:col-span-2 bg-notion-bg dark:bg-notionDark-bg border border-notion-border dark:border-notionDark-border rounded px-6 py-5 shadow-[0_1px_2px_rgba(0,0,0,0.03)] flex flex-col">
+          <h3 className="text-[16px] font-semibold text-notion-text dark:text-notionDark-text mb-4">Roofline Model</h3>
+          <div className="flex-1 w-full flex flex-col justify-end">
+             <RooflineChart points={points} computeRoof={computeRoof} memoryRoof={memoryRoof} />
+          </div>
         </div>
-        <div className="bg-slate-800 border border-slate-700 rounded-xl shadow-sm">
+        <div className="bg-notion-bg dark:bg-notionDark-bg border border-notion-border dark:border-notionDark-border rounded shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
            <EfficiencyScore score={score} />
         </div>
       </div>

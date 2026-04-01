@@ -4,18 +4,18 @@ interface EfficiencyScoreProps {
 
 export function EfficiencyScore({ score }: EfficiencyScoreProps) {
   let label = "Poor";
-  let color = "text-red-500";
-  if (score >= 80) { label = "Excellent"; color = "text-green-500"; }
-  else if (score >= 60) { label = "Good"; color = "text-indigo-500"; }
-  else if (score >= 40) { label = "Fair"; color = "text-amber-500"; }
+  let colorHex = "#E03E3E"; // Red
+  if (score >= 80) { label = "Excellent"; colorHex = "#0F7B6C"; } // Green
+  else if (score >= 60) { label = "Good"; colorHex = "#0B6E99"; } // Blue text
+  else if (score >= 40) { label = "Fair"; colorHex = "#D9730D"; } // Orange
 
   return (
     <div className="flex flex-col items-center justify-center p-6 h-full">
-      <div className="text-[64px] font-bold tracking-tight mb-2" style={{color: color.replace('text-', '').replace('-500', '') === 'indigo' ? '#6366f1' : color.replace('text-', '').replace('-500', '') === 'green' ? '#22c55e' : color.replace('text-', '').replace('-500', '') === 'amber' ? '#f59e0b' : '#ef4444'}}>
+      <div className="text-[64px] font-bold tracking-tight mb-2 leading-none" style={{color: colorHex}}>
          {score.toFixed(0)}
       </div>
-      <div className={`text-xl font-semibold uppercase ${color} mb-1`}>{label}</div>
-      <div className="text-sm text-slate-400">Overall Efficiency Score</div>
+      <div className="text-[14px] font-semibold uppercase tracking-wider mb-1" style={{color: colorHex}}>{label}</div>
+      <div className="text-[12px] font-medium text-notion-textSecondary dark:text-notionDark-textSecondary mt-2">Overall Efficiency Score</div>
     </div>
   );
 }

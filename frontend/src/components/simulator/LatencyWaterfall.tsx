@@ -12,41 +12,41 @@ export function LatencyWaterfall() {
   })) || [];
 
   return (
-    <div className="bg-slate-800 border border-slate-700 rounded-xl p-6 shadow-sm w-full h-[350px]">
-      <h3 className="text-xl font-semibold text-slate-100 mb-4">Latency Waterfall</h3>
+    <div className="bg-notion-bg dark:bg-notionDark-bg border border-notion-border dark:border-notionDark-border rounded px-6 py-5 shadow-[0_1px_2px_rgba(0,0,0,0.03)] w-full h-[350px]">
+      <h3 className="text-[16px] font-semibold text-notion-text dark:text-notionDark-text mb-4">Latency Waterfall</h3>
       <ResponsiveContainer width="100%" height="85%">
         <BarChart
           layout="vertical"
           data={data}
           margin={{ top: 10, right: 30, left: 40, bottom: 20 }}
         >
-          <CartesianGrid strokeDasharray="3 3" stroke="#334155" horizontal={false} />
+          <CartesianGrid strokeDasharray="3 3" stroke="#e9e5e3" horizontal={false} />
           <XAxis 
             type="number"
-            tick={{ fill: '#94a3b8', fontSize: 12 }}
-            axisLine={{ stroke: '#334155' }}
+            tick={{ fill: '#8c8c8c', fontSize: 12 }}
+            axisLine={{ stroke: '#e9e5e3' }}
             tickLine={false}
           />
           <YAxis 
             dataKey="name"
             type="category"
-            tick={{ fill: '#94a3b8', fontSize: 13 }}
-            axisLine={{ stroke: '#334155' }}
+            tick={{ fill: '#8c8c8c', fontSize: 13 }}
+            axisLine={{ stroke: '#e9e5e3' }}
             tickLine={false}
           />
           <Tooltip 
-            contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '8px', padding: '10px 14px' }}
-            itemStyle={{ fontSize: '14px', color: '#94a3b8' }}
-            labelStyle={{ color: '#f1f5f9', fontSize: '14px', fontWeight: 600, marginBottom: '4px' }}
-            cursor={{ fill: 'rgba(255,255,255,0.05)' }}
+            contentStyle={{ backgroundColor: '#ffffff', border: '1px solid #e9e5e3', borderRadius: '4px', padding: '8px 12px', boxShadow: 'rgba(15, 15, 15, 0.1) 0px 3px 6px' }}
+            itemStyle={{ fontSize: '13px', color: '#8c8c8c' }}
+            labelStyle={{ color: '#37352f', fontSize: '13px', fontWeight: 600, marginBottom: '2px' }}
+            cursor={{ fill: 'rgba(55, 53, 47, 0.04)' }}
             formatter={(value: number, name: string, props: any) => {
                if (name === 'latency') return [`${value.toFixed(2)} µs (${props.payload.cycles} cycles)`, 'Latency'];
                return [value, name];
             }}
           />
-          <Bar dataKey="latency" barSize={28} isAnimationActive={true} animationDuration={600}>
+          <Bar dataKey="latency" barSize={20} isAnimationActive={true} animationDuration={400} radius={[0, 2, 2, 0]}>
             {data.map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={entry.type === 'conv2d' ? '#6366f1' : '#14b8a6'} />
+              <Cell key={`cell-${index}`} fill={entry.type === 'conv2d' ? '#0B6E99' : '#AD1A72'} />
             ))}
           </Bar>
         </BarChart>

@@ -18,29 +18,29 @@ export function FormulaProvenance() {
   ] : [];
 
   return (
-    <div className="bg-slate-800 border border-slate-700 rounded-xl shadow-sm p-6 mb-6">
-      <h3 className="text-xl font-semibold text-slate-100 mb-4">Formula Provenance</h3>
-      <div className="flex flex-col gap-2">
+    <div className="bg-notion-bg dark:bg-notionDark-bg border border-notion-border dark:border-notionDark-border rounded shadow-[0_1px_2px_rgba(0,0,0,0.03)] p-6 mb-6">
+      <h3 className="text-[16px] font-semibold text-notion-text dark:text-notionDark-text mb-4">Formula Provenance</h3>
+      <div className="flex flex-col border-t border-notion-border dark:border-notionDark-border">
         {formulas.map((f) => (
-           <div key={f.title} className="border border-slate-700 rounded-lg overflow-hidden bg-slate-900">
+           <div key={f.title} className="border-b border-notion-border dark:border-notionDark-border overflow-hidden">
              <button
                onClick={() => toggle(f.title)}
-               className="w-full flex items-center justify-between p-4 text-sm font-semibold text-slate-100 hover:bg-white/5 transition-colors focus:outline-none"
+               className="w-full flex items-center p-3 text-[14px] font-medium text-notion-textSecondary dark:text-notionDark-textSecondary hover:bg-notion-bgHover dark:hover:bg-notionDark-bgHover transition-colors focus:outline-none focus-visible:bg-notion-bgHover"
              >
+               {open[f.title] ? <ChevronDown className="w-4 h-4 mr-2" /> : <ChevronRight className="w-4 h-4 mr-2" />}
                {f.title}
-               {open[f.title] ? <ChevronDown className="w-4 h-4 text-slate-400" /> : <ChevronRight className="w-4 h-4 text-slate-400" />}
              </button>
              {open[f.title] && (
-                <div className="p-4 pt-0 border-t border-slate-700">
-                  <div className="font-mono text-[13px] text-indigo-400 bg-slate-800 p-3 rounded-md mb-3 overflow-x-auto">
+                <div className="px-9 pb-4">
+                  <div className="font-mono text-[13px] text-[#EB5757] dark:text-[#ff7b72] bg-[#f7f7f5] dark:bg-[#202020] p-2.5 rounded mb-2 overflow-x-auto whitespace-nowrap">
                     {f.formula}
                   </div>
-                  <p className="text-xs text-slate-400 font-light italic text-right">Source: {f.cite}</p>
+                  <p className="text-[12px] text-notion-textSecondary dark:text-notionDark-textSecondary italic">Source: {f.cite}</p>
                 </div>
              )}
            </div>
         ))}
-        {!formulas.length && <p className="text-sm text-slate-400 italic">Run estimation to view formula provenance.</p>}
+        {!formulas.length && <div className="pt-4"><p className="text-[13px] text-notion-textSecondary dark:text-notionDark-textSecondary italic">Run estimation to view formula provenance.</p></div>}
       </div>
     </div>
   );

@@ -49,16 +49,16 @@ export function LayerForm() {
   };
 
   return (
-    <div className="bg-slate-800 border border-slate-700 rounded-xl p-6 shadow-sm mb-6">
-      <div className="flex bg-slate-900 border border-slate-700 rounded-lg p-1 mb-6">
+    <div className="bg-notion-bg dark:bg-notionDark-bg border border-notion-border dark:border-notionDark-border rounded px-6 py-5 shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
+      <div className="flex bg-[#f1f1f0] dark:bg-[#202020] border-notion-border dark:border-notionDark-border rounded p-1 mb-6">
         <button
-          className={`flex-1 text-sm font-semibold rounded-md py-2 transition-colors ${type === 'conv2d' ? 'bg-slate-800 text-slate-100 shadow-sm' : 'text-slate-400 hover:text-slate-100'}`}
+          className={`flex-1 text-[13px] font-medium rounded py-1.5 transition-colors ${type === 'conv2d' ? 'bg-white dark:bg-[#2f2f2f] text-notion-text dark:text-notionDark-text shadow-[0_1px_2px_rgba(0,0,0,0.08)]' : 'text-notion-textSecondary dark:text-notionDark-textSecondary hover:text-notion-text dark:hover:text-notionDark-text'}`}
           onClick={() => setType('conv2d')}
         >
           Conv2D
         </button>
         <button
-          className={`flex-1 text-sm font-semibold rounded-md py-2 transition-colors ${type === 'dense' ? 'bg-slate-800 text-slate-100 shadow-sm' : 'text-slate-400 hover:text-slate-100'}`}
+          className={`flex-1 text-[13px] font-medium rounded py-1.5 transition-colors ${type === 'dense' ? 'bg-white dark:bg-[#2f2f2f] text-notion-text dark:text-notionDark-text shadow-[0_1px_2px_rgba(0,0,0,0.08)]' : 'text-notion-textSecondary dark:text-notionDark-textSecondary hover:text-notion-text dark:hover:text-notionDark-text'}`}
           onClick={() => setType('dense')}
         >
           Dense (Fully Connected)
@@ -111,7 +111,7 @@ export function LayerForm() {
           </div>
         )}
         
-        <div className="flex justify-end pt-4 border-t border-slate-700">
+        <div className="flex justify-end pt-4 border-t border-notion-border dark:border-notionDark-border mt-2">
            <Button type="submit">Add Layer</Button>
         </div>
       </form>

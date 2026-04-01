@@ -1,26 +1,26 @@
-import { cn } from './Badge';
-
 interface ProgressBarProps {
-  value: number; // 0-100
+  value: number; // 0 to 100
   className?: string;
   isBram?: boolean;
 }
 
 export function ProgressBar({ value, className, isBram = false }: ProgressBarProps) {
-  const clamped = Math.min(Math.max(value, 0), 100);
+  const clamped = Math.max(0, Math.min(100, value));
   
-  let fillClass = 'bg-green-500';
+  // Notion uses subtle blues and muted semantic colors
+  let colorClass = "bg-[#2eaadc] dark:bg-[#2383e2]"; // Primary Notion blue
+  
   if (isBram) {
-     fillClass = 'bg-amber-500';
+    colorClass = "bg-notion-tagYellowText dark:bg-notionDark-tagYellowText";
   } else {
-      if (clamped >= 80) fillClass = 'bg-red-500';
-      else if (clamped >= 60) fillClass = 'bg-amber-500';
+    if (clamped >= 80) colorClass = "bg-[#E03E3E] dark:bg-[#DF5452]"; // Red warning
+    else if (clamped >= 60) colorClass = "bg-[#D9730D] dark:bg-[#C77D48]"; // Orange warning
   }
 
   return (
-    <div className={cn("w-full h-[6px] rounded-full bg-slate-700 overflow-hidden", className)}>
+    <div className={`w-full bg-notion-border dark:bg-notionDark-border rounded h-[4px] overflow-hidden flex ${className || ''}`}>
       <div 
-        className={cn("h-full rounded-full transition-all duration-300 ease-in-out", fillClass)} 
+        className={`h-full ${colorClass} transition-all duration-500 ease-out`}
         style={{ width: `${clamped}%` }}
       />
     </div>

@@ -10,18 +10,20 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
 export const Input = forwardRef<HTMLInputElement, InputProps>(
   ({ className, label, error, ...props }, ref) => {
     return (
-      <div className="flex flex-col gap-1 w-full">
-        {label && <label className="text-base text-slate-100">{label}</label>}
-        <input
-          ref={ref}
-          className={cn(
-            "w-full bg-slate-900 border border-slate-700 rounded-lg px-[14px] py-[10px] text-base text-slate-100 placeholder:text-slate-400 focus:outline-none focus:border-indigo-500 focus:shadow-[0_0_0_3px_rgba(99,102,241,0.2)] disabled:bg-slate-800 disabled:text-slate-500 disabled:cursor-not-allowed transition-all",
-            error && "border-red-500 focus:border-red-500 focus:shadow-none",
-            className
-          )}
-          {...props}
-        />
-        {error && <span className="text-xs text-red-500 mt-1">{error}</span>}
+      <div className="flex flex-col gap-1 w-full relative">
+        {label && <label className="text-[14px] text-notion-textSecondary dark:text-notionDark-textSecondary font-medium">{label}</label>}
+        <div className="relative">
+          <input
+            ref={ref}
+            className={cn(
+              "w-full bg-notion-bg dark:bg-notionDark-bg border border-notion-border dark:border-notionDark-border rounded px-2.5 py-1.5 text-[14px] text-notion-text dark:text-notionDark-text placeholder:text-notion-textSecondary dark:placeholder:text-notionDark-textSecondary hover:bg-notion-bgHover dark:hover:bg-notionDark-bgHover focus:bg-notion-bg dark:focus:bg-notionDark-bg focus:outline-none focus:border-[rgba(45,170,219,0.5)] focus:ring-[rgba(45,170,219,0.3)] focus:ring-[3px] disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm",
+              error && "border-[#E03E3E] dark:border-[#DF5452] focus:border-[#E03E3E] focus:ring-[rgba(224,62,62,0.2)]",
+              className
+            )}
+            {...props}
+          />
+        </div>
+        {error && <span className="text-[12px] text-[#E03E3E] dark:text-[#DF5452] leading-tight">{error}</span>}
       </div>
     );
   }
@@ -37,20 +39,25 @@ interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
 export const Select = forwardRef<HTMLSelectElement, SelectProps>(
   ({ className, label, error, children, ...props }, ref) => {
     return (
-      <div className="flex flex-col gap-1 w-full">
-        {label && <label className="text-base text-slate-100">{label}</label>}
-        <select
-          ref={ref}
-          className={cn(
-            "w-full bg-slate-900 border border-slate-700 rounded-lg px-[14px] py-[10px] text-base text-slate-100 focus:outline-none focus:border-indigo-500 focus:shadow-[0_0_0_3px_rgba(99,102,241,0.2)] disabled:bg-slate-800 disabled:text-slate-500 disabled:cursor-not-allowed transition-all appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M5%208l5%205%205-5%22%20stroke%3D%22%2394a3b8%22%20stroke-width%3D%221.5%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E')] bg-no-repeat bg-[position:right_10px_center]",
-            error && "border-red-500 focus:border-red-500 focus:shadow-none",
-            className
-          )}
-          {...props}
-        >
-          {children}
-        </select>
-        {error && <span className="text-xs text-red-500 mt-1">{error}</span>}
+      <div className="flex flex-col gap-1 w-full relative">
+        {label && <label className="text-[14px] text-notion-textSecondary dark:text-notionDark-textSecondary font-medium">{label}</label>}
+        <div className="relative">
+          <select
+            ref={ref}
+            className={cn(
+              "w-full bg-notion-bg dark:bg-notionDark-bg border border-notion-border dark:border-notionDark-border rounded px-2.5 py-1.5 text-[14px] text-notion-text dark:text-notionDark-text hover:bg-notion-bgHover dark:hover:bg-notionDark-bgHover focus:bg-notion-bg dark:focus:bg-notionDark-bg focus:outline-none focus:border-[rgba(45,170,219,0.5)] focus:ring-[rgba(45,170,219,0.3)] focus:ring-[3px] disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm appearance-none",
+              error && "border-[#E03E3E] dark:border-[#DF5452] focus:border-[#E03E3E] focus:ring-[rgba(224,62,62,0.2)]",
+              className
+            )}
+            {...props}
+          >
+            {children}
+          </select>
+          <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-notion-textSecondary dark:text-notionDark-textSecondary">
+            <svg width="10" height="10" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3.5 5.25L7 8.75L10.5 5.25" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+          </div>
+        </div>
+        {error && <span className="text-[12px] text-[#E03E3E] dark:text-[#DF5452] leading-tight">{error}</span>}
       </div>
     );
   }

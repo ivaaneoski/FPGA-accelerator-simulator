@@ -1,12 +1,12 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useRef } from 'react';
 import type { ReactNode } from 'react';
 import { cn } from './Badge';
 
 interface TooltipProps {
   children: ReactNode;
-  content: string | ReactNode;
+  content: string;
   delay?: number;
-  position?: 'top' | 'bottom';
+  position?: 'top' | 'bottom' | 'left' | 'right';
 }
 
 export function Tooltip({ children, content, delay = 300, position = 'top' }: TooltipProps) {
@@ -22,31 +22,31 @@ export function Tooltip({ children, content, delay = 300, position = 'top' }: To
     setIsVisible(false);
   };
 
-  useEffect(() => {
-    return () => {
-      if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    };
-  }, []);
+  const positionClasses = {
+    top: 'bottom-full left-1/2 -translate-x-1/2 mb-1.5',
+    bottom: 'top-full left-1/2 -translate-x-1/2 mt-1.5',
+    left: 'right-full top-1/2 -translate-y-1/2 mr-1.5',
+    right: 'left-full top-1/2 -translate-y-1/2 ml-1.5',
+  };
 
   return (
     <div 
-      className="relative flex items-center group/tooltip"
-      onMouseEnter={showTooltip}
+      className="relative flex items-center" 
+      onMouseEnter={showTooltip} 
       onMouseLeave={hideTooltip}
       onFocus={showTooltip}
       onBlur={hideTooltip}
     >
       {children}
       {isVisible && (
-        <div className={cn(
-          "absolute z-50 px-3 flex flex-col items-center py-2 text-sm text-slate-100 bg-slate-800 border-slate-700 border rounded-lg shadow-lg max-w-xs whitespace-nowrap",
-          position === 'top' ? "bottom-full mb-2 left-1/2 -translate-x-1/2" : "top-full mt-2 left-1/2 -translate-x-1/2"
-        )}>
+        <div 
+          className={cn(
+            "absolute z-50 px-2 py-1 text-[12px] font-medium leading-tight rounded shadow-sm whitespace-nowrap animate-fade-in pointer-events-none",
+            "bg-[#191919] text-white dark:bg-white dark:text-[#191919]",
+            positionClasses[position]
+          )}
+        >
           {content}
-          <div className={cn(
-              "absolute w-2 h-2 bg-slate-800 border-slate-700 rotate-45",
-              position === 'top' ? "bottom-[-5px] border-b border-r" : "top-[-5px] border-t border-l"
-          )} />
         </div>
       )}
     </div>
