@@ -7,7 +7,7 @@ export function ComparisonTable() {
 
   if (!savedConfigs.length) {
     return (
-      <div className="bg-[#f7f7f5] dark:bg-[#202020] border border-notion-border dark:border-notionDark-border rounded p-8 text-center shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
+      <div className="bg-[#f7f7f5] dark:bg-[#202020] border border-notion-border dark:border-notionDark-border rounded p-8 text-center shadow-[0_1px_2px_rgba(0,0,0,0.02)] hover:shadow-md hover:-translate-y-0.5 transition-all duration-300">
         <p className="text-[13px] text-notion-textSecondary dark:text-notionDark-textSecondary">No saved configurations. Save a configuration from the Simulator page to compare.</p>
       </div>
     );
@@ -21,7 +21,7 @@ export function ComparisonTable() {
   const maxTp = Math.max(...savedConfigs.map(c => c.result.total.throughput_inf_per_sec));
 
   return (
-    <div className="bg-notion-bg dark:bg-notionDark-bg border border-notion-border dark:border-notionDark-border rounded shadow-[0_1px_2px_rgba(0,0,0,0.03)] overflow-x-auto">
+    <div className="bg-notion-bg dark:bg-notionDark-bg border border-notion-border dark:border-notionDark-border rounded shadow-[0_1px_2px_rgba(0,0,0,0.03)] overflow-x-auto hover:shadow-md hover:-translate-y-0.5 transition-all duration-300">
       <table className="w-full text-left border-collapse">
         <thead>
           <tr className="bg-[#f7f7f5] dark:bg-[#202020] border-b border-notion-border dark:border-notionDark-border">

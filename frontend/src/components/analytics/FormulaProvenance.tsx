@@ -18,7 +18,7 @@ export function FormulaProvenance() {
   ] : [];
 
   return (
-    <div className="bg-notion-bg dark:bg-notionDark-bg border border-notion-border dark:border-notionDark-border rounded shadow-[0_1px_2px_rgba(0,0,0,0.03)] p-6 mb-6">
+    <div className="bg-notion-bg dark:bg-notionDark-bg border border-notion-border dark:border-notionDark-border rounded shadow-[0_1px_2px_rgba(0,0,0,0.03)] hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 p-6 mb-6">
       <h3 className="text-[16px] font-semibold text-notion-text dark:text-notionDark-text mb-4">Formula Provenance</h3>
       <div className="flex flex-col border-t border-notion-border dark:border-notionDark-border">
         {formulas.map((f) => (

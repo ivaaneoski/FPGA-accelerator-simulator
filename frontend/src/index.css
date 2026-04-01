@@ -39,7 +39,7 @@
 
 @layer components {
   .notion-icon-btn {
-    @apply p-1.5 rounded flex items-center justify-center text-notion-textSecondary hover:bg-notion-bgHover active:bg-notion-bgActive transition-colors dark:text-notionDark-textSecondary dark:hover:bg-notionDark-bgHover dark:active:bg-notionDark-bgActive focus:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(45,170,219,0.5)];
+    @apply p-1.5 rounded flex items-center justify-center text-notion-textSecondary hover:bg-notion-bgHover active:bg-notion-bgActive hover:-translate-y-0.5 active:translate-y-0 active:scale-95 transition-all duration-200 dark:text-notionDark-textSecondary dark:hover:bg-notionDark-bgHover dark:active:bg-notionDark-bgActive focus:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(45,170,219,0.5)];
   }
 
   .notion-border {

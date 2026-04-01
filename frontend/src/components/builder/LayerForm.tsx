@@ -49,8 +49,8 @@ export function LayerForm() {
   };
 
   return (
-    <div className="bg-notion-bg dark:bg-notionDark-bg border border-notion-border dark:border-notionDark-border rounded px-6 py-5 shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
-      <div className="flex bg-[#f1f1f0] dark:bg-[#202020] border-notion-border dark:border-notionDark-border rounded p-1 mb-6">
+    <div className="bg-notion-bg dark:bg-notionDark-bg border border-notion-border dark:border-notionDark-border rounded px-6 py-5 shadow-[0_1px_2px_rgba(0,0,0,0.03)] hover:shadow-md hover:-translate-y-0.5 transition-all duration-300">
+      <div className="flex bg-[#f7f7f5] dark:bg-[#202020] p-1 rounded-md mb-6 border border-notion-border dark:border-notionDark-border">
         <button
           className={`flex-1 text-[13px] font-medium rounded py-1.5 transition-colors ${type === 'conv2d' ? 'bg-white dark:bg-[#2f2f2f] text-notion-text dark:text-notionDark-text shadow-[0_1px_2px_rgba(0,0,0,0.08)]' : 'text-notion-textSecondary dark:text-notionDark-textSecondary hover:text-notion-text dark:hover:text-notionDark-text'}`}
           onClick={() => setType('conv2d')}

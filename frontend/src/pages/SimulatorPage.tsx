@@ -33,7 +33,7 @@ export function SimulatorPage() {
         <LatencyWaterfall />
       </div>
 
-      <div className="bg-notion-bg dark:bg-notionDark-bg border border-notion-border dark:border-notionDark-border rounded px-6 py-5 shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
+      <div className="bg-notion-bg dark:bg-notionDark-bg border border-notion-border dark:border-notionDark-border rounded px-6 py-5 shadow-[0_1px_2px_rgba(0,0,0,0.03)] hover:shadow-md hover:-translate-y-0.5 transition-all duration-300">
         <h3 className="text-[16px] font-semibold text-notion-text dark:text-notionDark-text mb-6">FPGA Utilization</h3>
         <div className="flex flex-wrap justify-center sm:justify-evenly items-center gap-6">
           <UtilizationGauge value={result?.fpga_utilization?.lut_pct || 0} label="LUTs" color="" />

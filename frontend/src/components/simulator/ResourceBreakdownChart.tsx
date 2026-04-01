@@ -12,8 +12,8 @@ export function ResourceBreakdownChart() {
   })) || [];
 
   return (
-    <div className="bg-slate-800 border border-slate-700 rounded-xl p-6 shadow-sm w-full h-[350px]">
-      <h3 className="text-xl font-semibold text-slate-100 mb-4">Resource Breakdown by Layer</h3>
+    <div className="bg-notion-bg dark:bg-notionDark-bg border border-notion-border dark:border-notionDark-border rounded px-6 py-5 shadow-[0_1px_2px_rgba(0,0,0,0.03)] hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 w-full h-[350px]">
+      <h3 className="text-[16px] font-semibold text-notion-text dark:text-notionDark-text mb-4">Resource Breakdown per Layer</h3>
       <ResponsiveContainer width="100%" height="85%">
         <BarChart
           data={data}

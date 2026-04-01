@@ -25,8 +25,8 @@ export function ParallelismSlider({ layerId }: { layerId: string | null }) {
   const metrics = result?.layers.find(l => l.name === layer.name);
 
   return (
-    <div className="bg-notion-bg dark:bg-notionDark-bg border border-notion-border dark:border-notionDark-border rounded px-6 py-5 shadow-[0_1px_2px_rgba(0,0,0,0.03)] flex flex-col gap-6">
-      <h3 className="text-[16px] font-semibold text-notion-text dark:text-notionDark-text">Parallelism Tradeoff</h3>
+    <div className="bg-notion-bg dark:bg-notionDark-bg border border-notion-border dark:border-notionDark-border rounded px-6 py-5 shadow-[0_1px_2px_rgba(0,0,0,0.03)] hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 flex flex-col gap-6">
+      <h3 className="text-[16px] font-semibold text-notion-text dark:text-notionDark-text m-0">Concurrency Tradeoffs</h3>
       
       <div className="flex flex-col gap-5">
          <div className="flex justify-between items-center bg-[#f7f7f5] dark:bg-[#202020] border border-notion-border dark:border-notionDark-border rounded p-4 shadow-[0_1px_2px_rgba(0,0,0,0.02)]">

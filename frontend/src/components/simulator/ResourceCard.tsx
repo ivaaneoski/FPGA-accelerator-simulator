@@ -24,7 +24,7 @@ export function ResourceCard({ title, value, total, unit, isLoading, isBram = fa
   }
 
   return (
-    <div className="bg-notion-bg dark:bg-notionDark-bg border border-notion-border dark:border-notionDark-border rounded px-4 py-3 shadow-sm flex flex-col justify-between">
+    <div className="bg-notion-bg dark:bg-notionDark-bg border border-notion-border dark:border-notionDark-border rounded px-4 py-3 shadow-[0_1px_2px_rgba(0,0,0,0.03)] hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 flex flex-col justify-between">
       <h3 className="text-[13px] font-semibold text-notion-textSecondary dark:text-notionDark-textSecondary truncate mb-1">{title}</h3>
       <div className="flex items-baseline gap-1.5 mb-2">
         <span className="text-[20px] font-bold text-notion-text dark:text-notionDark-text leading-tight">{value.toLocaleString()}</span>

@@ -7,7 +7,7 @@ export function AboutPage() {
          <h1 className="text-[28px] font-bold text-notion-text dark:text-notionDark-text tracking-tight">About & References</h1>
       </div>
       
-      <div className="bg-notion-bg dark:bg-notionDark-bg border border-notion-border dark:border-notionDark-border rounded px-8 py-6 shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
+      <div className="bg-notion-bg dark:bg-notionDark-bg border border-notion-border dark:border-notionDark-border rounded px-8 py-6 shadow-[0_1px_2px_rgba(0,0,0,0.03)] hover:shadow-md hover:-translate-y-0.5 transition-all duration-300">
         <h2 className="text-[18px] font-semibold text-notion-text dark:text-notionDark-text mb-4">Project Description</h2>
         <p className="text-[15px] text-notion-text dark:text-notionDark-text leading-relaxed font-normal">
           The FPGA-Targeted Neural Network Accelerator Simulator is a comprehensive modeling tool designed to estimate hardware resource utilization (LUTs, DSPs, BRAMs), inference latency, and throughput when mapping modern deep learning layers onto various FPGA targets. 
@@ -17,7 +17,7 @@ export function AboutPage() {
         </p>
       </div>
 
-      <div className="bg-notion-bg dark:bg-notionDark-bg border border-notion-border dark:border-notionDark-border rounded px-8 py-6 shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
+      <div className="bg-notion-bg dark:bg-notionDark-bg border border-notion-border dark:border-notionDark-border rounded px-8 py-6 shadow-[0_1px_2px_rgba(0,0,0,0.03)] hover:shadow-md hover:-translate-y-0.5 transition-all duration-300">
         <h2 className="text-[18px] font-semibold text-notion-text dark:text-notionDark-text mb-4">Academic References</h2>
         <ul className="list-decimal list-outside flex flex-col gap-3 text-[14px] text-notion-textSecondary dark:text-notionDark-textSecondary font-medium pl-6 marker:text-notion-textSecondary">
           <li className="pl-1">Sze, V., Chen, Y., Yang, T., & Edeleman, J. (2017). <em className="italic">Efficient Processing of Deep Neural Networks: A Tutorial and Survey</em>. Proceedings of the IEEE.</li>
@@ -28,7 +28,7 @@ export function AboutPage() {
         </ul>
       </div>
 
-      <div className="bg-notion-bg dark:bg-notionDark-bg border border-notion-border dark:border-notionDark-border rounded shadow-[0_1px_2px_rgba(0,0,0,0.03)] overflow-x-auto">
+      <div className="bg-notion-bg dark:bg-notionDark-bg border border-notion-border dark:border-notionDark-border rounded shadow-[0_1px_2px_rgba(0,0,0,0.03)] overflow-x-auto hover:shadow-md hover:-translate-y-0.5 transition-all duration-300">
         <h2 className="text-[18px] font-semibold text-notion-text dark:text-notionDark-text p-6 pb-4 border-b border-notion-border dark:border-notionDark-border bg-[#f7f7f5] dark:bg-[#202020] m-0">Supported FPGA Targets</h2>
         <table className="w-full text-left border-collapse">
           <thead>

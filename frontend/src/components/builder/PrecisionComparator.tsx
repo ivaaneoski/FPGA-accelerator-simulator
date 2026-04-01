@@ -47,8 +47,8 @@ export function PrecisionComparator() {
   };
 
   return (
-    <div className="bg-notion-bg dark:bg-notionDark-bg border border-notion-border dark:border-notionDark-border rounded px-6 py-5 shadow-[0_1px_2px_rgba(0,0,0,0.03)] overflow-x-auto">
-      <h3 className="text-[16px] font-semibold text-notion-text dark:text-notionDark-text mb-4">Precision Comparator</h3>
+    <div className="bg-notion-bg dark:bg-notionDark-bg border border-notion-border dark:border-notionDark-border rounded px-6 py-5 shadow-[0_1px_2px_rgba(0,0,0,0.03)] overflow-x-auto hover:shadow-md hover:-translate-y-0.5 transition-all duration-300">
+      <h3 className="text-[16px] font-semibold text-notion-text dark:text-notionDark-text mb-4">Precision Analysis</h3>
       {isLoading ? (
          <div className="h-48 skeleton rounded-lg" />
       ) : (
