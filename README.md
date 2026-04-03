@@ -75,7 +75,7 @@ The simulator uses validated models to estimate hardware requirements based on l
 - Latency: Modeled as a pipelined process where clock cycles = macs / parallelism + pipeline overhead.
 
 ### Precision Multipliers
-The following multipliers are applied based on data precision:
+The following multipliers are applied based on data precision (These are approximate resource numbers actual values depend on whether you're counting LUTs vs logic cells and the exact device variant. For precise numbers, I’d refer to the datasheet):
 
 | Precision | Bits | DSPs per MAC | BRAM Factor |
 |-----------|------|--------------|-------------|
