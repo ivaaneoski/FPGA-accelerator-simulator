@@ -44,6 +44,8 @@ export interface LayerEstimate {
   parameters: number;
   arithmetic_intensity: number;
   roofline_bound: 'compute' | 'memory';
+  effective_speedup: number;
+  confidence_margin: string;
   formula_used: Record<string, string>;
 }
 

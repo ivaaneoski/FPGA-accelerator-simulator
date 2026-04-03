@@ -1,0 +1,39 @@
+﻿============================= test session starts =============================
+platform win32 -- Python 3.11.4, pytest-9.0.2, pluggy-1.6.0 -- C:\Python37\python.exe
+cachedir: .pytest_cache
+rootdir: D:\Programming\FPGA-neural_simacc\backend
+plugins: anyio-4.3.0
+collecting ... collected 23 items
+
+tests/test_formulas.py::TestConv2DEstimation::test_basic_output_dims_same_padding PASSED [  4%]
+tests/test_formulas.py::TestConv2DEstimation::test_basic_output_dims_valid_padding PASSED [  8%]
+tests/test_formulas.py::TestConv2DEstimation::test_all_resources_positive PASSED [ 13%]
+tests/test_formulas.py::TestConv2DEstimation::test_precision_ordering_luts PASSED [ 17%]
+tests/test_formulas.py::TestConv2DEstimation::test_precision_ordering_dsps PASSED [ 21%]
+tests/test_formulas.py::TestConv2DEstimation::test_higher_parallelism_reduces_latency PASSED [ 26%]
+tests/test_formulas.py::TestConv2DEstimation::test_higher_parallelism_increases_luts FAILED [ 30%]
+tests/test_formulas.py::TestConv2DEstimation::test_memory_bound_diminishing_returns PASSED [ 34%]
+tests/test_formulas.py::TestConv2DEstimation::test_routing_overhead_applied PASSED [ 39%]
+tests/test_formulas.py::TestConv2DEstimation::test_confidence_margin_present PASSED [ 43%]
+tests/test_formulas.py::TestDenseEstimation::test_basic_dense_all_positive PASSED [ 47%]
+tests/test_formulas.py::TestDenseEstimation::test_tiny_dense_bram_minimum_one PASSED [ 52%]
+tests/test_formulas.py::TestDenseEstimation::test_precision_ordering_dense PASSED [ 56%]
+tests/test_formulas.py::TestDenseEstimation::test_parallelism_reduces_latency_dense PASSED [ 60%]
+tests/test_formulas.py::TestBRAMEstimation::test_zero_bits_returns_zero PASSED [ 65%]
+tests/test_formulas.py::TestBRAMEstimation::test_minimum_one_tile PASSED [ 69%]
+tests/test_formulas.py::TestBRAMEstimation::test_efficiency_factor_applied PASSED [ 73%]
+tests/test_formulas.py::TestBRAMEstimation::test_large_weight_matrix PASSED [ 78%]
+tests/test_formulas.py::TestRooflineModel::test_compute_bound_classification PASSED [ 82%]
+tests/test_formulas.py::TestRooflineModel::test_memory_bound_classification PASSED [ 86%]
+tests/test_formulas.py::TestRooflineModel::test_arithmetic_intensity_never_zero PASSED [ 91%]
+tests/test_formulas.py::TestRooflineModel::test_attainable_performance_never_zero PASSED [ 95%]
+tests/test_formulas.py::TestRooflineModel::test_attainable_capped_at_compute_roof PASSED [100%]
+
+================================== FAILURES ===================================
+_________ TestConv2DEstimation.test_higher_parallelism_increases_luts _________
+tests\test_formulas.py:69: in test_higher_parallelism_increases_luts
+    assert r8["luts"] > r1["luts"]
+E   assert 3628 > 29030
+=========================== short test summary info ===========================
+FAILED tests/test_formulas.py::TestConv2DEstimation::test_higher_parallelism_increases_luts
+======================== 1 failed, 22 passed in 0.07s =========================

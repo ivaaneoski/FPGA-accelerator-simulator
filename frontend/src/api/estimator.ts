@@ -18,10 +18,36 @@ function toSnakeCase(obj: any): any {
   return result;
 }
 
-export async function estimateLayers(payload: EstimateRequest): Promise<EstimationResult> {
+let activeController: AbortController | null = null;
+
+export async function estimateLayers(
+  payload: EstimateRequest,
+  signal?: AbortSignal
+): Promise<EstimationResult> {
   const transformedPayload = toSnakeCase(payload);
-  const { data } = await apiClient.post<EstimationResult>('/api/estimate', transformedPayload);
+  const { data } = await apiClient.post<EstimationResult>(
+    '/api/estimate',
+    transformedPayload,
+    { signal }
+  );
   return data;
+}
+
+/**
+ * Cancellable version: aborts any previous in-flight request.
+ * Used by the main store's runEstimation.
+ */
+export function estimateLayersCancellable(payload: EstimateRequest): {
+  promise: Promise<EstimationResult>;
+  controller: AbortController;
+} {
+  // Abort any previous in-flight request
+  activeController?.abort();
+  activeController = new AbortController();
+  const controller = activeController;
+
+  const promise = estimateLayers(payload, controller.signal);
+  return { promise, controller };
 }
 
 export async function getFPGATargets(): Promise<FPGATarget[]> {

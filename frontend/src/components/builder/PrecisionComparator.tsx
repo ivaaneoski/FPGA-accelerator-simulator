@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useSimulatorStore } from '../../store/useSimulatorStore';
 import { estimateLayers } from '../../api/estimator';
 import type { EstimationResult } from '../../types';
 import { cn } from '../shared/Badge';
+import { fmtInt, fmtLatency, fmtThroughput } from '../../utils/formatters';
 
 export function PrecisionComparator() {
   const { layers, selectedFPGA, clockMhz } = useSimulatorStore();
@@ -10,28 +11,44 @@ export function PrecisionComparator() {
     fp32: null, int8: null, int4: null
   });
   const [isLoading, setIsLoading] = useState(false);
+  const controllerRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
+    // Abort previous precision comparison requests
+    controllerRef.current?.abort();
+    const controller = new AbortController();
+    controllerRef.current = controller;
+
     async function fetchComparisons() {
       if (!layers.length) return;
       setIsLoading(true);
       
       const fetchPrec = async (prec: 'fp32' | 'int8' | 'int4') => {
          const newLayers = layers.map(l => ({...l, precision: prec}));
-         return estimateLayers({ layers: newLayers, clock_mhz: clockMhz, fpga_target: selectedFPGA.id });
+         return estimateLayers(
+           { layers: newLayers, clock_mhz: clockMhz, fpga_target: selectedFPGA.id },
+           controller.signal
+         );
       };
 
       try {
         const [fp32, int8, int4] = await Promise.all([
            fetchPrec('fp32'), fetchPrec('int8'), fetchPrec('int4')
         ]);
-        setData({ fp32, int8, int4 });
-      } catch (err) {
+        if (!controller.signal.aborted) {
+          setData({ fp32, int8, int4 });
+        }
+      } catch (err: any) {
+        if (err.name === 'CanceledError' || err.code === 'ERR_CANCELED') return;
         console.error(err);
       }
-      setIsLoading(false);
+      if (!controller.signal.aborted) {
+        setIsLoading(false);
+      }
     }
     fetchComparisons();
+
+    return () => { controller.abort(); };
   }, [layers, clockMhz, selectedFPGA.id]);
 
   if (!layers.length) return null;
@@ -64,33 +81,33 @@ export function PrecisionComparator() {
           <tbody>
             <tr className="hover:bg-notion-bgHover dark:hover:bg-notionDark-bgHover transition-colors border-b border-notion-border dark:border-notionDark-border">
               <td className="px-4 py-3 text-[13px] text-notion-text dark:text-notionDark-text">LUTs</td>
-              {renderCell('fp32', r => r.total.luts.toLocaleString())}
-              {renderCell('int8', r => r.total.luts.toLocaleString())}
-              {renderCell('int4', r => r.total.luts.toLocaleString())}
+              {renderCell('fp32', r => `~${fmtInt(r.total.luts)}`)}
+              {renderCell('int8', r => `~${fmtInt(r.total.luts)}`)}
+              {renderCell('int4', r => `~${fmtInt(r.total.luts)}`)}
             </tr>
             <tr className="bg-[rgba(55,53,47,0.01)] dark:bg-[rgba(255,255,255,0.01)] hover:bg-notion-bgHover dark:hover:bg-notionDark-bgHover transition-colors border-b border-notion-border dark:border-notionDark-border">
               <td className="px-4 py-3 text-[13px] text-notion-text dark:text-notionDark-text">DSPs</td>
-              {renderCell('fp32', r => r.total.dsps.toLocaleString())}
-              {renderCell('int8', r => r.total.dsps.toLocaleString())}
-              {renderCell('int4', r => r.total.dsps.toLocaleString())}
+              {renderCell('fp32', r => `~${fmtInt(r.total.dsps)}`)}
+              {renderCell('int8', r => `~${fmtInt(r.total.dsps)}`)}
+              {renderCell('int4', r => `~${fmtInt(r.total.dsps)}`)}
             </tr>
             <tr className="hover:bg-notion-bgHover dark:hover:bg-notionDark-bgHover transition-colors border-b border-notion-border dark:border-notionDark-border">
               <td className="px-4 py-3 text-[13px] text-notion-text dark:text-notionDark-text">BRAMs</td>
-              {renderCell('fp32', r => r.total.brams.toLocaleString())}
-              {renderCell('int8', r => r.total.brams.toLocaleString())}
-              {renderCell('int4', r => r.total.brams.toLocaleString())}
+              {renderCell('fp32', r => `~${fmtInt(r.total.brams)}`)}
+              {renderCell('int8', r => `~${fmtInt(r.total.brams)}`)}
+              {renderCell('int4', r => `~${fmtInt(r.total.brams)}`)}
             </tr>
             <tr className="bg-[rgba(55,53,47,0.01)] dark:bg-[rgba(255,255,255,0.01)] hover:bg-notion-bgHover dark:hover:bg-notionDark-bgHover transition-colors border-b border-notion-border dark:border-notionDark-border">
-              <td className="px-4 py-3 text-[13px] text-notion-text dark:text-notionDark-text">Latency (µs)</td>
-              {renderCell('fp32', r => r.total.latency_us.toFixed(2))}
-              {renderCell('int8', r => r.total.latency_us.toFixed(2))}
-              {renderCell('int4', r => r.total.latency_us.toFixed(2))}
+              <td className="px-4 py-3 text-[13px] text-notion-text dark:text-notionDark-text">Latency</td>
+              {renderCell('fp32', r => `~${fmtLatency(r.total.latency_us)}`)}
+              {renderCell('int8', r => `~${fmtLatency(r.total.latency_us)}`)}
+              {renderCell('int4', r => `~${fmtLatency(r.total.latency_us)}`)}
             </tr>
             <tr className="hover:bg-notion-bgHover dark:hover:bg-notionDark-bgHover transition-colors border-b border-notion-border dark:border-notionDark-border">
-              <td className="px-4 py-3 text-[13px] text-notion-text dark:text-notionDark-text">Throughput (inf/s)</td>
-              {renderCell('fp32', r => r.total.throughput_inf_per_sec.toLocaleString())}
-              {renderCell('int8', r => r.total.throughput_inf_per_sec.toLocaleString())}
-              {renderCell('int4', r => r.total.throughput_inf_per_sec.toLocaleString())}
+              <td className="px-4 py-3 text-[13px] text-notion-text dark:text-notionDark-text">Throughput</td>
+              {renderCell('fp32', r => `~${fmtThroughput(r.total.throughput_inf_per_sec)}`)}
+              {renderCell('int8', r => `~${fmtThroughput(r.total.throughput_inf_per_sec)}`)}
+              {renderCell('int4', r => `~${fmtThroughput(r.total.throughput_inf_per_sec)}`)}
             </tr>
             <tr className="bg-[rgba(55,53,47,0.01)] dark:bg-[rgba(255,255,255,0.01)] hover:bg-notion-bgHover dark:hover:bg-notionDark-bgHover transition-colors border-b border-notion-border dark:border-notionDark-border">
               <td className="px-4 py-3 text-[13px] text-notion-text dark:text-notionDark-text">Estimated Accuracy Loss</td>

@@ -30,6 +30,8 @@ class LayerEstimate(BaseModel):
     parameters: int
     arithmetic_intensity: float
     roofline_bound: str
+    effective_speedup: float
+    confidence_margin: str
     formula_used: Dict[str, str]
 
 class EstimationResult(BaseModel):

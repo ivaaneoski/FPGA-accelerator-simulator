@@ -1,6 +1,7 @@
 import { Trash2, Play } from 'lucide-react';
 import { useSimulatorStore } from '../../store/useSimulatorStore';
 import { cn } from '../shared/Badge';
+import { fmtInt, fmtLatency, fmtThroughput } from '../../utils/formatters';
 
 export function ComparisonTable() {
   const { savedConfigs, loadConfig, deleteConfig } = useSimulatorStore();
@@ -42,11 +43,11 @@ export function ComparisonTable() {
               <tr key={cfg.id} className="hover:bg-notion-bgHover dark:hover:bg-notionDark-bgHover transition-colors">
                 <td className="px-4 py-3 text-[13px] font-medium text-notion-text dark:text-notionDark-text pl-6">{cfg.name}</td>
                 <td className="px-4 py-3 text-[13px] text-notion-textSecondary dark:text-notionDark-textSecondary text-right">{cfg.layers.length}</td>
-                <td className={cn("px-4 py-3 text-[13px] text-right font-mono", r.luts === minLUTs ? 'text-[#0F7B6C] font-semibold' : 'text-notion-text dark:text-notionDark-text')}>{r.luts.toLocaleString()}</td>
-                <td className={cn("px-4 py-3 text-[13px] text-right font-mono", r.dsps === minDSPs ? 'text-[#0F7B6C] font-semibold' : 'text-notion-text dark:text-notionDark-text')}>{r.dsps.toLocaleString()}</td>
-                <td className={cn("px-4 py-3 text-[13px] text-right font-mono", r.brams === minBRAMs ? 'text-[#0F7B6C] font-semibold' : 'text-notion-text dark:text-notionDark-text')}>{r.brams.toLocaleString()}</td>
-                <td className={cn("px-4 py-3 text-[13px] text-right font-mono", r.latency_us === minLat ? 'text-[#0F7B6C] font-semibold' : 'text-notion-text dark:text-notionDark-text')}>{r.latency_us.toFixed(2)}</td>
-                <td className={cn("px-4 py-3 text-[13px] text-right font-mono", r.throughput_inf_per_sec === maxTp ? 'text-[#0F7B6C] font-semibold' : 'text-notion-text dark:text-notionDark-text')}>{r.throughput_inf_per_sec.toLocaleString()}</td>
+                <td className={cn("px-4 py-3 text-[13px] text-right font-mono", r.luts === minLUTs ? 'text-[#0F7B6C] font-semibold' : 'text-notion-text dark:text-notionDark-text')}>~{fmtInt(r.luts)}</td>
+                <td className={cn("px-4 py-3 text-[13px] text-right font-mono", r.dsps === minDSPs ? 'text-[#0F7B6C] font-semibold' : 'text-notion-text dark:text-notionDark-text')}>~{fmtInt(r.dsps)}</td>
+                <td className={cn("px-4 py-3 text-[13px] text-right font-mono", r.brams === minBRAMs ? 'text-[#0F7B6C] font-semibold' : 'text-notion-text dark:text-notionDark-text')}>~{fmtInt(r.brams)}</td>
+                <td className={cn("px-4 py-3 text-[13px] text-right font-mono", r.latency_us === minLat ? 'text-[#0F7B6C] font-semibold' : 'text-notion-text dark:text-notionDark-text')}>~{fmtLatency(r.latency_us)}</td>
+                <td className={cn("px-4 py-3 text-[13px] text-right font-mono", r.throughput_inf_per_sec === maxTp ? 'text-[#0F7B6C] font-semibold' : 'text-notion-text dark:text-notionDark-text')}>~{fmtThroughput(r.throughput_inf_per_sec)}</td>
                 <td className="px-4 py-3 pr-6">
                   <div className="flex items-center justify-center gap-1.5">
                     <button onClick={() => loadConfig(cfg.id)} className="notion-icon-btn text-[#0B6E99] hover:bg-blue-500/10" title="Load Configuration">

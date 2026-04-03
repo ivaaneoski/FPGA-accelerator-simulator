@@ -9,21 +9,34 @@ export interface RooflinePoint {
 
 interface RooflineChartProps {
   points: RooflinePoint[];
-  computeRoof: number;     // e.g. 500 GOPs/s — from fpga DSPs * 2 * clockMhz / 1000
-  memoryRoof: number;      // e.g. 25.6 GB/s — fixed for DDR4 on Zynq
+  computeRoof: number;
+  memoryRoof: number;
 }
 
+const FLOOR = 0.001; // prevent log(0)
+
 export function RooflineChart({ points, computeRoof, memoryRoof }: RooflineChartProps) {
-  const ridgePoint = computeRoof / memoryRoof;
+  // Sanitize inputs
+  const safeComputeRoof = Math.max(computeRoof, FLOOR);
+  const safeMemoryRoof = Math.max(memoryRoof, FLOOR);
+  const ridgePoint = safeComputeRoof / safeMemoryRoof;
 
   const roofData = [
-    { x: 0.1, y: 0.1 * memoryRoof },
-    { x: ridgePoint, y: computeRoof },
-    { x: ridgePoint * 100, y: computeRoof },
+    { x: FLOOR, y: FLOOR * safeMemoryRoof },
+    { x: ridgePoint, y: safeComputeRoof },
+    { x: ridgePoint * 100, y: safeComputeRoof },
   ];
+
+  // Filter out degenerate points that would crash log scale
+  const validPoints = points
+    .filter(p => p.arithmeticIntensity > 0 && p.performance > 0)
+    .map(p => ({ ...p, x: p.arithmeticIntensity, y: p.performance }));
+
+  const isEmpty = validPoints.length === 0;
 
   const CustomDot = (props: any) => {
     const { cx, cy, payload } = props;
+    if (!cx || !cy || isNaN(cx) || isNaN(cy)) return <g />;
     const fill = payload.bound === 'compute' ? '#E03E3E' : '#0B6E99';
     return (
       <g>
@@ -33,6 +46,15 @@ export function RooflineChart({ points, computeRoof, memoryRoof }: RooflineChart
     );
   };
 
+  if (isEmpty) {
+    return (
+      <div className="w-full h-[350px] flex flex-col items-center justify-center text-notion-textSecondary dark:text-notionDark-textSecondary text-[13px]">
+        <p className="mb-1 font-medium">No data to display</p>
+        <p className="text-[12px]">Add layers and run estimation to see the roofline model.</p>
+      </div>
+    );
+  }
+
   return (
     <ResponsiveContainer width="100%" height={350}>
       <ScatterChart margin={{ top: 20, right: 30, bottom: 40, left: 50 }}>
@@ -41,12 +63,13 @@ export function RooflineChart({ points, computeRoof, memoryRoof }: RooflineChart
           dataKey="x"
           type="number"
           scale="log"
-          domain={['auto', 'auto']}
-          tickFormatter={(v) => v.toFixed(1)}
+          domain={[FLOOR, 'auto']}
+          tickFormatter={(v) => (isFinite(v) && v > 0 ? v.toFixed(1) : '')}
           stroke="#8c8c8c"
           tick={{ fontSize: 12, fill: '#8c8c8c' }}
           axisLine={{ stroke: '#e9e5e3' }}
           tickLine={false}
+          allowDataOverflow
         >
           <Label value="Arithmetic Intensity (OPs/Byte)" position="bottom" offset={20} fill="#8c8c8c" fontSize={12} />
         </XAxis>
@@ -54,12 +77,13 @@ export function RooflineChart({ points, computeRoof, memoryRoof }: RooflineChart
           dataKey="y"
           type="number"
           scale="log"
-          domain={['auto', 'auto']}
-          tickFormatter={(v) => `${v}`}
+          domain={[FLOOR, 'auto']}
+          tickFormatter={(v) => (isFinite(v) && v > 0 ? `${v}` : '')}
           stroke="#8c8c8c"
           tick={{ fontSize: 12, fill: '#8c8c8c' }}
           axisLine={{ stroke: '#e9e5e3' }}
           tickLine={false}
+          allowDataOverflow
         >
           <Label value="Performance (GOPs/s)" angle={-90} position="insideLeft" offset={-10} fill="#8c8c8c" fontSize={12} />
         </YAxis>
@@ -68,7 +92,7 @@ export function RooflineChart({ points, computeRoof, memoryRoof }: RooflineChart
           content={({ payload }) => {
             if (!payload?.length) return null;
             const d = payload[0].payload;
-            if (d.name === "Roofline") return null;
+            if (d.name === 'Roofline') return null;
             return (
               <div className="bg-[#ffffff] border border-[#e9e5e3] p-2.5 rounded shadow-[rgba(15,15,15,0.1)_0px_3px_6px] text-[13px] text-notion-textSecondary dark:text-notionDark-textSecondary">
                 <p className="font-semibold text-notion-text dark:text-notionDark-text mb-1">{d.name}</p>
@@ -81,9 +105,9 @@ export function RooflineChart({ points, computeRoof, memoryRoof }: RooflineChart
             );
           }}
         />
-        <Scatter data={roofData} dataKey="y" line={{ stroke: '#D9730D', strokeWidth: 2, strokeDasharray: "4 4" }} shape={() => <g></g>} name="Roofline" fill="#D9730D" />
+        <Scatter data={roofData} dataKey="y" line={{ stroke: '#D9730D', strokeWidth: 2, strokeDasharray: '4 4' }} shape={() => <g />} name="Roofline" fill="#D9730D" />
         <Scatter
-          data={points.map(p => ({ ...p, x: p.arithmeticIntensity, y: p.performance }))}
+          data={validPoints}
           dataKey="y"
           shape={<CustomDot />}
           name="Layers"

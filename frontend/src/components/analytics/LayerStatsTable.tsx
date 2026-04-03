@@ -1,5 +1,6 @@
 import { useSimulatorStore } from '../../store/useSimulatorStore';
 import { Badge } from '../shared/Badge';
+import { fmtInt, fmtMACs, fmtLatency } from '../../utils/formatters';
 
 export function LayerStatsTable() {
   const { result } = useSimulatorStore();
@@ -27,12 +28,12 @@ export function LayerStatsTable() {
             <tr key={`${l.name}-${i}`} className="hover:bg-notion-bgHover dark:hover:bg-notionDark-bgHover transition-colors group">
               <td className="px-4 py-3 text-[13px] font-medium text-notion-text dark:text-notionDark-text pl-6 whitespace-nowrap">{l.name}</td>
               <td className="px-4 py-3"><Badge variant={l.type}>{l.type === 'conv2d' ? 'Conv2D' : 'Dense'}</Badge></td>
-              <td className="px-4 py-3 text-[13px] text-right font-mono text-notion-text dark:text-notionDark-text">{l.macs.toLocaleString()}</td>
-              <td className="px-4 py-3 text-[13px] text-right font-mono text-notion-text dark:text-notionDark-text">{l.parameters.toLocaleString()}</td>
-              <td className="px-4 py-3 text-[13px] text-right font-mono text-notion-text dark:text-notionDark-text">{l.luts.toLocaleString()}</td>
-              <td className="px-4 py-3 text-[13px] text-right font-mono text-notion-text dark:text-notionDark-text">{l.dsps.toLocaleString()}</td>
-              <td className="px-4 py-3 text-[13px] text-right font-mono text-notion-text dark:text-notionDark-text">{l.brams.toLocaleString()}</td>
-              <td className="px-4 py-3 text-[13px] text-right font-mono text-notion-text dark:text-notionDark-text">{l.latency_us.toFixed(2)}</td>
+              <td className="px-4 py-3 text-[13px] text-right font-mono text-notion-text dark:text-notionDark-text">~{fmtMACs(l.macs)}</td>
+              <td className="px-4 py-3 text-[13px] text-right font-mono text-notion-text dark:text-notionDark-text">~{fmtInt(l.parameters)}</td>
+              <td className="px-4 py-3 text-[13px] text-right font-mono text-notion-text dark:text-notionDark-text">~{fmtInt(l.luts)}</td>
+              <td className="px-4 py-3 text-[13px] text-right font-mono text-notion-text dark:text-notionDark-text">~{fmtInt(l.dsps)}</td>
+              <td className="px-4 py-3 text-[13px] text-right font-mono text-notion-text dark:text-notionDark-text">~{fmtInt(l.brams)}</td>
+              <td className="px-4 py-3 text-[13px] text-right font-mono text-notion-text dark:text-notionDark-text">~{fmtLatency(l.latency_us)}</td>
               <td className="px-4 py-3 pr-6 text-right font-mono"><Badge variant={l.roofline_bound === 'compute' ? 'compute_bound' : 'memory_bound'}>{l.roofline_bound}</Badge></td>
             </tr>
           ))}

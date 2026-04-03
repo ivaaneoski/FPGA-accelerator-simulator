@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 from typing import Literal
 
 class BaseLayer(BaseModel):
@@ -6,7 +6,14 @@ class BaseLayer(BaseModel):
     type: Literal["conv2d", "dense"]
     activation: Literal["relu", "sigmoid", "softmax", "none"] = "relu"
     precision: Literal["fp32", "int8", "int4"] = "int8"
-    parallelism_factor: int = Field(ge=1, le=16) # Must be power of 2, enforced later or in UI
+    parallelism_factor: int = Field(ge=1, le=16)
+
+    @field_validator('parallelism_factor')
+    @classmethod
+    def check_power_of_2(cls, v):
+        if v & (v - 1) != 0:
+            raise ValueError('parallelism_factor must be a power of 2')
+        return v
 
 class Conv2DLayer(BaseLayer):
     type: Literal["conv2d"]

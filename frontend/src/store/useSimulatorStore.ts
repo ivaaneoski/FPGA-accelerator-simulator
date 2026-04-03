@@ -1,8 +1,10 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { Layer, EstimationResult, SavedConfig, FPGATarget } from '../types';
-import { estimateLayers } from '../api/estimator';
+import { estimateLayersCancellable } from '../api/estimator';
 import { FPGA_TARGETS } from '../utils/constants';
+import { getLocalStorageSizeKB } from '../utils/localStorage';
+import { toast } from 'react-hot-toast';
 
 interface SimulatorState {
   // Layer stack
@@ -38,6 +40,9 @@ interface SimulatorState {
   toggleDarkMode: () => void;
 }
 
+// Track the latest request ID so we can ignore stale responses
+let latestRequestId = 0;
+
 export const useSimulatorStore = create<SimulatorState>()(
   persist(
     (set, get) => ({
@@ -64,7 +69,7 @@ export const useSimulatorStore = create<SimulatorState>()(
         set((s) => ({ layers: s.layers.filter((l) => l.id !== id) }));
         get().runEstimation();
       },
-      clearLayers: () => set({ layers: [], result: null }),
+      clearLayers: () => set({ layers: [], result: null, isLoading: false, error: null }),
       reorderLayers: (from, to) => {
         set((s) => {
           const updated = [...s.layers];
@@ -86,24 +91,55 @@ export const useSimulatorStore = create<SimulatorState>()(
 
       runEstimation: async () => {
         const { layers, selectedFPGA, clockMhz } = get();
-        if (layers.length === 0) { set({ result: null }); return; }
+        if (layers.length === 0) {
+          set({ result: null, isLoading: false, error: null });
+          return;
+        }
+
+        // Increment request ID — only the latest request writes state
+        const requestId = ++latestRequestId;
         set({ isLoading: true, error: null });
+
         try {
-          const result = await estimateLayers({
+          const { promise } = estimateLayersCancellable({
             fpga_target: selectedFPGA.id,
             clock_mhz: clockMhz,
-            // the backend accepts 'layers' exactly like the ts-types so this works
             layers: layers,
           });
-          set({ result, isLoading: false });
+          const result = await promise;
+
+          // Only apply if this is still the latest request
+          if (requestId === latestRequestId) {
+            set({ result, isLoading: false });
+          }
         } catch (err: any) {
-          set({ error: err.message || 'Estimation failed', isLoading: false });
+          // Silently ignore canceled requests — a newer one is in flight
+          if (err.name === 'CanceledError' || err.code === 'ERR_CANCELED') {
+            // Don't touch isLoading — the newer request owns it now
+            return;
+          }
+          // Only show error if this is still the latest request
+          if (requestId === latestRequestId) {
+            set({ error: err.message || 'Estimation failed', isLoading: false });
+          }
         }
       },
 
       saveConfig: (name) => {
         const { layers, selectedFPGA, clockMhz, result, savedConfigs } = get();
-        if (!result) return;
+        if (!result) {
+          toast.error('Run an estimation before saving.');
+          return;
+        }
+        if (savedConfigs.length >= 10) {
+          toast.error('Maximum 10 saved configurations. Delete one to save a new config.');
+          return;
+        }
+        const sizeKB = getLocalStorageSizeKB();
+        if (sizeKB > 4000) {
+          toast.error('Storage nearly full. Delete old configurations to continue saving.');
+          return;
+        }
         const config: SavedConfig = {
           id: crypto.randomUUID(),
           name,
@@ -113,7 +149,8 @@ export const useSimulatorStore = create<SimulatorState>()(
           result,
           savedAt: new Date().toISOString(),
         };
-        set({ savedConfigs: [...savedConfigs.slice(-9), config] }); // max 10
+        set({ savedConfigs: [...savedConfigs, config] });
+        toast.success(`"${name}" saved successfully.`);
       },
       loadConfig: (id) => {
         const config = get().savedConfigs.find((c) => c.id === id);
