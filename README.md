@@ -254,13 +254,7 @@ Submit a neural network layer pipeline for hardware resource estimation.
 }
 ```
 
-**Field Reference:**
 
-| Field | Type | Required | Constraints |
-|-------|------|----------|-------------|
-| `fpga_target` | string | Yes | One of the IDs returned by `/api/fpga-targets` |
-| `clock_mhz` | integer | Yes | 50–1000 |
-| `layers` | array | Yes | Non-empty, items are Conv2DLayer or DenseLayer |
 
 **Conv2DLayer Fields:**
 
