@@ -1,5 +1,7 @@
 # FPGA-NN Accelerator Simulator
 
+![License](https://img.shields.io/github/license/ivaaneoski/FPGA-accelerator-simulator)
+
 A full-stack web application that simulates neural network inference on FPGA hardware. Estimate resource utilization (LUTs, FFs, DSPs, BRAMs), latency, throughput, and roofline performance bounds **before** committing to time-consuming RTL synthesis. Built for ML hardware researchers, students, and FPGA engineers.
 
 > **This is a simulation tool.** It does not generate synthesizable RTL code or interface with physical FPGA hardware.
@@ -447,4 +449,4 @@ The estimation models are derived from the following publications:
 
 ## License
 
-This project is intended for research and educational purposes. See individual source files for specific license terms.
+This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
