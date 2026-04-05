@@ -1,11 +1,13 @@
-import { useState } from 'react';
-import { Plus, Pencil, Trash2, Cpu, Database, Save, FolderOpen } from 'lucide-react';
+import { useRef, useState } from 'react';
+import { Plus, Pencil, Trash2, Cpu, Database, Save, FolderOpen, FileDown, FileUp } from 'lucide-react';
 import { useSimulatorStore } from '../../store/useSimulatorStore';
 import { Button } from '../shared/Button';
 import { useNavigate } from 'react-router-dom';
+import type { ChangeEvent } from 'react';
 
 export function Sidebar() {
-  const { layers, removeLayer, clearLayers, saveConfig, savedConfigs, loadConfig } = useSimulatorStore();
+  const { layers, removeLayer, clearLayers, clearAllConfigs, saveConfig, savedConfigs, loadConfig, exportConfigs, importConfigs } = useSimulatorStore();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
   const [showSavePrompt, setShowSavePrompt] = useState(false);
   const [saveName, setSaveName] = useState('');
@@ -136,6 +138,52 @@ export function Sidebar() {
             Save
           </Button>
         </div>
+
+        {/* Hidden file input for importing */}
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept=".json"
+          className="hidden"
+          onChange={(e: ChangeEvent<HTMLInputElement>) => {
+            const file = e.target.files?.[0];
+            if (file) {
+              importConfigs(file);
+              e.target.value = '';
+              setShowLoadMenu(false);
+            }
+          }}
+        />
+
+        <div className="flex gap-2">
+          <Button
+            variant="secondary"
+            className="flex-1 text-[13px]"
+            onClick={exportConfigs}
+            disabled={savedConfigs.length === 0}
+          >
+            <FileDown className="w-3.5 h-3.5 mr-1" />
+            Export
+          </Button>
+          <Button
+            variant="secondary"
+            className="flex-1 text-[13px]"
+            onClick={() => fileInputRef.current?.click()}
+          >
+            <FileUp className="w-3.5 h-3.5 mr-1" />
+            Import
+          </Button>
+        </div>
+
+        {savedConfigs.length > 0 && (
+          <button
+            className="text-[12px] text-notion-textSecondary dark:text-notionDark-textSecondary hover:text-[#E03E3E] dark:hover:text-[#DF5452] self-center transition-colors"
+            onClick={() => { if (confirm('Clear all saved configurations? This cannot be undone.')) clearAllConfigs(); }}
+          >
+            Clear saved configs
+          </button>
+        )}
+
       </div>
     </aside>
   );

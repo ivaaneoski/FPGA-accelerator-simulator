@@ -1,3 +1,26 @@
-brandGuidelines.md
-Fix_and_Test.md
+# Dependencies
+node_modules/
+__pycache__/
+*.pyc
+venv/
+
+# Build outputs
+dist/
+build/
+
+# Editor/IDE
+.vscode/
+.idea/
+
+# Local OS
+.DS_Store
+Thumbs.db
+
+# Project-specific
+.claude/
+*.log
+run.py
+
+# Misc markdown (notes, not docs)
 gemini.md
+Fix_and_Test.md

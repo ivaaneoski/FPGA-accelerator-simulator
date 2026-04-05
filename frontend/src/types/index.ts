@@ -83,6 +83,13 @@ export interface SavedConfig {
   savedAt: string; // ISO timestamp
 }
 
+export interface ExportedConfig {
+  version: 1;
+  appName: 'fpga-nn-simulator';
+  exportedAt: string;
+  configs: SavedConfig[];
+}
+
 export interface FPGATarget {
   id: string;
   name: string;

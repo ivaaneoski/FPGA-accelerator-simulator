@@ -1,150 +1,454 @@
 # FPGA-NN Accelerator Simulator
 
-A sophisticated simulation environment designed for ML hardware researchers, students, and FPGA engineers. This tool enables the exploration of architectural design decisions for neural network acceleration on FPGA hardware before committing to time-consuming RTL synthesis. It provides detailed estimations for resource utilization, latency, and throughput across various FPGA targets.
+A full-stack web application that simulates neural network inference on FPGA hardware. Estimate resource utilization (LUTs, FFs, DSPs, BRAMs), latency, throughput, and roofline performance bounds **before** committing to time-consuming RTL synthesis. Built for ML hardware researchers, students, and FPGA engineers.
 
-## Project Overview
+> **This is a simulation tool.** It does not generate synthesizable RTL code or interface with physical FPGA hardware.
 
-The FPGA-NN Accelerator Simulator is a full-stack web application that maps neural network layers (Conv2D, Dense) to theoretical FPGA hardware resources. It implements simplified academic and manufacturer-specific resource estimation models to predict LUT, FF, DSP, and BRAM consumption.
+## Table of Contents
 
-Note: This is a simulation-only tool. It does not interface with physical FPGA hardware or generate synthesizable RTL code.
+- [Demo](#demo)
+- [Technology Stack](#technology-stack)
+- [Architecture](#architecture)
+- [Features](#features)
+- [Supported FPGA Targets](#supported-fpga-targets)
+- [Resource Estimation Methodology](#resource-estimation-methodology)
+- [API Reference](#api-reference)
+- [Installation](#installation)
+- [Running the Simulator](#running-the-simulator)
+- [Testing](#testing)
+- [Academic References](#academic-references)
+- [License](#license)
+
+---
 
 ## Technology Stack
 
 ### Backend
-- Python 3.11+
-- FastAPI (REST API)
-- NumPy (Mathematical computations)
-- Pydantic (Data validation)
-- Uvicorn (ASGI server)
+- **Python 3.11+**
+- **FastAPI** — REST API framework
+- **Pydantic** — request/response validation
+- **Uvicorn** — ASGI server
+- **NumPy** — numerical computation
 
 ### Frontend
-- React 18
-- TypeScript 5
-- Vite 5
-- Tailwind CSS 3.4+
-- Recharts (Interactive visualization)
-- Zustand (State management)
-- Axios (API communication)
+- **React 18** with **TypeScript 5**
+- **Vite 5** — build tool & dev server
+- **Tailwind CSS 3** — styling
+- **Recharts** — data visualization
+- **Zustand** — state management
+- **Axios** — HTTP client
+- **React Router 6** — client-side routing
 
-## Key Features
+## Architecture
 
-- Interactive Simulator: Real-time calculation of resource usage as layers are added or modified.
-- Layer Builder: Comprehensive configuration for Conv2D and Dense layers, including precision (FP32, INT8, INT4) and parallelism factors.
-- Resource Breakdown: Visualizations for LUT, DSP, and BRAM usage per layer and globally.
-- Latency Waterfall: Stacked bar charts showing individual layer contributions to total inference time.
-- Utilization Gauges: Clear visual representation of how close the design is to specific FPGA limits.
-- Roofline Model: Analysis of arithmetic intensity vs. performance to identify compute-bound or memory-bound layers.
-- Multi-Config Comparison: Save and compare multiple design iterations (precision vs. parallelism vs. area).
-
-## Project Structure
-
-### Backend Architecture
-```text
-backend/
-├── main.py                    # FastAPI application entrypoint
-├── requirements.txt           # Python dependencies
-├── engine/                    # Core estimation logic
-│   ├── estimator.py           # Resource estimation coordinator
-│   ├── formulas.py            # Mathematical estimation functions
-│   ├── fpga_targets.py        # Database of FPGA hardware specifications
-│   └── roofline.py            # Performance classification logic
-├── models/                    # Pydantic data models
-└── routers/                   # API endpoint definitions
+```
+┌──────────────────────────────────────────────────────┐
+│  Frontend (React + Vite :5173)                        │
+│  ┌──────────┐ ┌───────────┐ ┌────────────┐           │
+│  │ Simulator │ │ Dashboard │ │ Comparisons │          │
+│  │  Page    │ │  Page     │ │   Page      │          │
+│  └──────────┘ └───────────┘ └────────────┘           │
+│         │              │              │               │
+│  ┌──────┴──────────────┴──────────────┴───────┐       │
+│  │              Zustand Store                 │       │
+│  └──────────────────────┬─────────────────────┘       │
+│                         │  Axios                      │
+└─────────────────────────┼─────────────────────────────┘
+                          │  /api/*
+┌─────────────────────────┼─────────────────────────────┐
+│  Backend (FastAPI :8000) │                             │
+│  ┌───────────────────────┴──────────────────┐         │
+│  │  Routers: /api/estimate, /api/fpga-targets│        │
+│  └───────────────────────┬──────────────────┘         │
+│  ┌───────────────────────┴──────────────────┐         │
+│  │  Engine: formulas, estimator, roofline   │         │
+│  └───────────────────────┬──────────────────┘         │
+│  ┌───────────────────────┴──────────────────┐         │
+│  │  Models: Conv2D, Dense, EstimationResult │         │
+│  └──────────────────────────────────────────┘         │
+└──────────────────────────────────────────────────────┘
 ```
 
-### Frontend Architecture
-```text
-frontend/
-├── src/
-│   ├── api/                   # Axios-based service layers
-│   ├── components/            # Reusable UI components and charts
-│   ├── pages/                 # Main application views
-│   ├── store/                 # Zustand global state management
-│   ├── themes/                # Tailwind styling configurations
-│   └── types/                 # TypeScript interface definitions
+### Directory Structure
+
 ```
+├── backend/
+│   ├── main.py                    # FastAPI application entry
+│   ├── requirements.txt           # Python dependencies
+│   ├── engine/
+│   │   ├── estimator.py           # Pipeline coordinator — iterates layers, aggregates results
+│   │   ├── formulas.py            # Core math: DSP/LUT/FF/BRAM estimation, roofline analysis
+│   │   ├── roofline.py            # Arithmetic intensity classification
+│   │   └── fpga_targets.py        # FPGA target hardware specs database
+│   ├── models/
+│   │   ├── layer.py               # Conv2DLayer, DenseLayer Pydantic models
+│   │   ├── request.py             # EstimateRequest
+│   │   └── response.py            # EstimationResult, LayerEstimate, etc.
+│   ├── routers/
+│   │   ├── estimate.py            # POST /api/estimate
+│   │   └── targets.py             # GET /api/fpga-targets
+│   └── tests/
+│       ├── test_formulas.py       # Unit tests for estimation formulas
+│       └── test_endpoints.py      # Integration tests for API endpoints
+├── frontend/
+│   ├── src/
+│   │   ├── api/                   # Axios API client
+│   │   ├── components/layout/     # Sidebar, navigation shell
+│   │   ├── pages/                 # Main page views
+│   │   ├── store/                 # Zustand state
+│   │   ├── themes/                # Tailwind/theme config
+│   │   └── types/                 # TypeScript type definitions
+│   ├── vite.config.ts             # Vite config (includes /api → :8000 proxy)
+│   ├── tailwind.config.ts
+│   └── package.json
+└── run.py                         # Convenience script — starts both servers
+```
+
+## Features
+
+- **Interactive Layer Builder** — Add Conv2D and Dense layers with configurable dimensions, precision (FP32/INT8/INT4), activation functions, and parallelism factors
+- **Real-Time Estimation** — Resource usage recalculated on every change
+- **Per-Layer Breakdown** — See LUT, DSP, BRAM, FF consumption per layer with contribution charts
+- **Latency Waterfall** — Stacked bar visualization of per-layer latency contributions
+- **FPGA Utilization Gauges** — Percentage-based gauges against each target device's limits
+- **Roofline Model Analysis** — Classify each layer as compute-bound or memory-bound via arithmetic intensity
+- **Multi-Configuration Comparison** — Save and compare different design iterations (e.g., INT8 + parallelism 4 vs INT4 + parallelism 8)
+- **5 Pre-Defined FPGA Targets** — from Artix-7 35T (entry-level) to Virtex UltraScale+ VU9P (datacenter-class)
+
+## Supported FPGA Targets
+
+| Device | Family | LUTs | FFs | DSPs | BRAMs |
+|--------|--------|------|-----|------|-------|
+| Artix-7 35T | Artix-7 | 20,800 | 41,600 | 90 | 50 |
+| Zynq-7020 | Zynq-7000 | 53,200 | 106,400 | 220 | 140 |
+| Zynq UltraScale+ ZU3EG | UltraScale+ | 70,560 | 141,120 | 360 | 216 |
+| Kria KV260 | UltraScale+ | 117,120 | 234,240 | 1,248 | 144 |
+| Virtex UltraScale+ VU9P | UltraScale+ | 1,182,240 | 2,364,480 | 6,840 | 2,160 |
 
 ## Resource Estimation Methodology
 
-The simulator uses validated models to estimate hardware requirements based on layer parameters and hardware targets.
-
-### Conv2D Resources
-- DSP blocks: Determined by the number of MAC operations and the precision-dependent multiplier factor.
-- LUTs: Calculated as a combination of control logic overhead (tied to DSP count) and activation function implementation.
-- BRAMs: Estimated based on weight bit-depth (precision) and total parameter count relative to 36Kb tiles.
-- Latency: Modeled as a pipelined process where clock cycles = macs / parallelism + pipeline overhead.
-
 ### Precision Multipliers
-The following multipliers are applied based on data precision:
 
-| Precision | Bits | DSPs per MAC | BRAM Factor |
-|-----------|------|--------------|-------------|
-| FP32      | 32   | 3.0          | 4.0x        |
-| INT8      | 8    | 1.0          | 1.0x        |
-| INT4      | 4    | 0.5          | 0.5x        |
+Different data types consume different numbers of DSP slices and BRAM tiles per MAC operation:
 
-## Supported FPGA Target Devices
+| Precision | Bits | DSPs per MAC | BRAM Factor | LUT Overhead per DSP |
+|-----------|------|--------------|-------------|----------------------|
+| FP32 | 32 | 3.0 | 4.0x | 120 |
+| INT8 | 8 | 1.0 | 1.0x | 40 |
+| INT4 | 4 | 0.5 | 0.5x | 25 |
 
-The system includes pre-defined specifications for several common FPGA devices:
+### Conv2D Estimation
 
-| Device                          | Family        | LUTs      | DSPs  | BRAMs |
-|---------------------------------|---------------|-----------|-------|-------|
-| Zynq-7020                       | Zynq-7000     | 53,200    | 220   | 140   |
-| Zynq UltraScale+ ZU3EG          | UltraScale+   | 70,560    | 360   | 216   |
-| Artix-7 35T                     | Artix-7       | 20,800    | 90    | 50    |
-| Virtex UltraScale+ VU9P         | UltraScale+   | 1,182,240 | 6,840 | 2,160 |
-| Kria KV260                      | UltraScale+   | 117,120   | 1,248 | 144   |
+- **Output dimensions**: `ceil(input / stride)` (same padding) or `floor((input - kernel) / stride) + 1` (valid padding)
+- **MACs**: `output_h * output_w * filters * input_channels * kernel_size^2`
+- **DSPs**: `ceil(MAC_group / parallelism) * DSPs_per_MAC[precision]`
+- **LUTs**: `DSPs * LUT_overhead[precision] * 1.20 + activation_luts`
+- **FFs**: `LUTs * 0.6`
+- **BRAMs**: `ceil(weight_bits / (36864 * 0.7))` (minimum 1 tile, 36Kb per block)
+- **Latency**: `base_cycles / effective_speedup + pipeline_overhead`
 
-## Installation and Setup
+Where `effective_speedup` depends on the roofline classification:
+- **Compute-bound**: `parallelism * 0.90` (linear scaling at 90% efficiency)
+- **Memory-bound**: `sqrt(parallelism)` (diminishing returns due to bandwidth limits)
+
+### Dense Estimation
+
+- **MACs**: `input_neurons * output_neurons`
+- **DSPs**: `ceil(output_neurons / parallelism) * DSPs_per_MAC[precision]`
+- LUTs, FFs, BRAMs, latency follow the same formulas as Conv2D
+
+### Activation Function Overhead
+
+Added on top of base LUT count:
+- **ReLU**: +5%
+- **Sigmoid**: +15%
+- **Softmax**: +20%
+
+### Roofline Model
+
+The simulator computes arithmetic intensity (operations per byte of memory access) for each layer:
+
+```
+AI = (2 * MACs) / (weight_bytes + activation_bytes)
+```
+
+Comparing against the hardware's **compute roof** (DSP GOPS) and **memory roof** (25.6 GB/s DDR4 bandwidth):
+
+```
+ridge_point = compute_roof / memory_roof
+bound = "compute" if AI >= ridge_point else "memory"
+```
+
+A layer above the ridge point is compute-bound; below it is memory-bound. This classification determines how parallelism affects effective speedup.
+
+### Confidence Margin
+
+All estimates carry an approximate **±20%** confidence margin. The models are simplified academic approximations and should not be expected to match post-synthesis Place-and-Route results precisely. Use them for relative comparisons between configurations.
+
+## API Reference
+
+### `GET /api/health`
+
+Check if the backend is running.
+
+**Response:**
+```json
+{ "status": "ok" }
+```
+
+### `GET /api/fpga-targets`
+
+List all available FPGA target devices with their resource specifications.
+
+**Response:**
+```json
+[
+  {
+    "id": "zynq_7020",
+    "name": "Zynq-7020",
+    "family": "Zynq-7000",
+    "luts": 53200,
+    "ffs": 106400,
+    "dsps": 220,
+    "brams": 140
+  }
+]
+```
+
+### `POST /api/estimate`
+
+Submit a neural network layer pipeline for hardware resource estimation.
+
+**Request Body:**
+```json
+{
+  "fpga_target": "zynq_7020",
+  "clock_mhz": 200,
+  "layers": [
+    {
+      "name": "conv1",
+      "type": "conv2d",
+      "input_width": 224,
+      "input_height": 224,
+      "input_channels": 3,
+      "filters": 64,
+      "kernel_size": 3,
+      "stride": 1,
+      "padding": "same",
+      "activation": "relu",
+      "precision": "int8",
+      "parallelism_factor": 4
+    },
+    {
+      "name": "fc1",
+      "type": "dense",
+      "input_neurons": 256,
+      "output_neurons": 10,
+      "activation": "softmax",
+      "precision": "int8",
+      "parallelism_factor": 4
+    }
+  ]
+}
+```
+
+**Field Reference:**
+
+| Field | Type | Required | Constraints |
+|-------|------|----------|-------------|
+| `fpga_target` | string | Yes | One of the IDs returned by `/api/fpga-targets` |
+| `clock_mhz` | integer | Yes | 50–1000 |
+| `layers` | array | Yes | Non-empty, items are Conv2DLayer or DenseLayer |
+
+**Conv2DLayer Fields:**
+
+| Field | Type | Required | Constraints |
+|-------|------|----------|-------------|
+| `name` | string | Yes | 1–32 chars, `[a-zA-Z0-9_-]` |
+| `type` | string | Yes | `"conv2d"` |
+| `input_width` | integer | Yes | 1–4096 |
+| `input_height` | integer | Yes | 1–4096 |
+| `input_channels` | integer | Yes | 1–2048 |
+| `filters` | integer | Yes | 1–2048 |
+| `kernel_size` | integer | Yes | 1–7 |
+| `stride` | integer | Yes | 1–4 |
+| `padding` | string | No | `"same"` (default) or `"valid"` |
+| `activation` | string | No | `"relu"` (default), `"sigmoid"`, `"softmax"`, `"none"` |
+| `precision` | string | No | `"fp32"`, `"int8"` (default), `"int4"` |
+| `parallelism_factor` | integer | Yes | 1–16, must be power of 2 |
+
+**DenseLayer Fields:**
+
+| Field | Type | Required | Constraints |
+|-------|------|----------|-------------|
+| `name` | string | Yes | 1–32 chars, `[a-zA-Z0-9_-]` |
+| `type` | string | Yes | `"dense"` |
+| `input_neurons` | integer | Yes | 1–65536 |
+| `output_neurons` | integer | Yes | 1–65536 |
+| `activation` | string | No | `"relu"`, `"sigmoid"`, `"softmax"`, `"none"` |
+| `precision` | string | No | `"fp32"`, `"int8"`, `"int4"` |
+| `parallelism_factor` | integer | Yes | 1–16, power of 2 |
+
+**Response (200):**
+```json
+{
+  "total": {
+    "luts": 12500,
+    "ffs": 7500,
+    "dsps": 312,
+    "brams": 8,
+    "latency_cycles": 4500000,
+    "latency_us": 22500.0,
+    "throughput_inf_per_sec": 44,
+    "macs": 90070016
+  },
+  "fpga_utilization": {
+    "lut_pct": 23.5,
+    "ff_pct": 7.0,
+    "dsp_pct": 141.8,
+    "bram_pct": 5.7
+  },
+  "layers": [
+    {
+      "name": "conv1",
+      "type": "conv2d",
+      "luts": 12000,
+      "ffs": 7200,
+      "dsps": 300,
+      "brams": 7,
+      "latency_cycles": 4200000,
+      "latency_us": 21000.0,
+      "macs": 90065920,
+      "parameters": 1728,
+      "arithmetic_intensity": 12.8,
+      "roofline_bound": "compute",
+      "effective_speedup": 3.6,
+      "confidence_margin": "±20%",
+      "formula_used": {
+        "dsps": "ceil(filters * channels * K^2 / parallelism) * dsps_per_mac",
+        "luts": "dsps * lut_overhead_factor[precision] * 1.2",
+        "latency": "apply_parallelism_diminishing_returns(base_latency, parallelism)"
+      }
+    },
+    {
+      "name": "fc1",
+      "type": "dense",
+      "luts": 500,
+      "ffs": 300,
+      "dsps": 12,
+      "brams": 1,
+      "latency_cycles": 300000,
+      "latency_us": 1500.0,
+      "macs": 2560,
+      "parameters": 2560,
+      "arithmetic_intensity": 128.0,
+      "roofline_bound": "compute",
+      "effective_speedup": 3.6,
+      "confidence_margin": "±20%",
+      "formula_used": {
+        "dsps": "ceil(output_neurons / parallelism) * dsps_per_mac",
+        "luts": "dsps * lut_overhead_factor[precision] * 1.2",
+        "latency": "apply_parallelism_diminishing_returns(base_latency, parallelism)"
+      }
+    }
+  ]
+}
+```
+
+**Error Responses:**
+
+| Status | Condition |
+|--------|-----------|
+| 404 | Unknown FPGA target ID |
+| 422 | Invalid layer parameters or malformed request |
+| 500 | Internal estimation error |
+
+## Installation
 
 ### Prerequisites
+
 - Python 3.11 or higher
 - Node.js 18.x or higher
 - npm or yarn
 
-### Backend Setup
-1. Navigate to the backend directory:
-   ```bash
-   cd backend
-   ```
-2. Create and activate a virtual environment:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
-3. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
-4. Start the server:
-   ```bash
-   python main.py
-   ```
-   The backend will be available at `http://localhost:8000`.
+### Backend
 
-### Frontend Setup
-1. Navigate to the frontend directory:
-   ```bash
-   cd frontend
-   ```
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-3. Start the development server:
-   ```bash
-   npm run dev
-   ```
-   The frontend will be available at `http://localhost:5173`.
+```bash
+cd backend
+
+# Create and activate virtual environment
+python -m venv venv
+source venv/bin/activate       # Linux/macOS
+venv\Scripts\activate          # Windows
+
+# Install dependencies
+pip install -r requirements.txt
+```
+
+**requirements.txt:**
+```
+fastapi==0.111.0
+uvicorn[standard]==0.29.0
+numpy==1.26.4
+pydantic==2.7.1
+python-dotenv==1.0.1
+```
+
+### Frontend
+
+```bash
+cd frontend
+
+# Install dependencies
+npm install
+```
+
+## Running the Simulator
+
+### Quick Start (both servers at once)
+
+```bash
+python run.py
+```
+
+This starts the backend on `http://localhost:8000` and the frontend on `http://localhost:5173` concurrently. The Vite dev server proxies `/api/*` requests to the FastAPI backend automatically.
+
+### Manual Start
+
+```bash
+# Terminal 1 — Backend
+cd backend
+uvicorn main:app --host 127.0.0.1 --port 8000 --reload
+
+# Terminal 2 — Frontend
+cd frontend
+npm run dev
+```
+
+- Frontend: http://localhost:5173
+- Backend: http://localhost:8000
+- API Docs (Swagger): http://localhost:8000/docs
+
+## Testing
+
+```bash
+cd backend
+python -m pytest tests/ -v
+```
+
+Covers:
+- `test_formulas.py` — unit tests for Conv2D and Dense estimation logic
+- `test_endpoints.py` — integration tests for API routes
 
 ## Academic References
 
 The estimation models are derived from the following publications:
-- Sze, V., et al. (2017). "Efficient Processing of Deep Neural Networks: A Tutorial and Survey." Proceedings of the IEEE.
-- Xilinx. "UltraScale Architecture DSP Slice User Guide (UG579)."
-- Umuroglu, Y., et al. (2017). "FINN: A Framework for Fast, Scalable Binarized Neural Network Inference." FPGA '17.
-- Blott, M., et al. (2018). "FINN-R: An End-to-End Deep-Learning Framework for Fast Exploration of Quantized Neural Networks." ACM TRETS.
+
+- Sze, V., et al. (2017). *"Efficient Processing of Deep Neural Networks: A Tutorial and Survey."* Proceedings of the IEEE.
+- Xilinx. *"UltraScale Architecture DSP Slice User Guide (UG579)."*
+- Umuroglu, Y., et al. (2017). *"FINN: A Framework for Fast, Scalable Binarized Neural Network Inference."* FPGA '17.
+- Blott, M., et al. (2018). *"FINN-R: An End-to-End Deep-Learning Framework for Fast Exploration of Quantized Neural Networks."* ACM TRETS.
 
 ## License
 
-This project is intended for research and educational purposes. Refer to the source files for specific license details.
+This project is intended for research and educational purposes. See individual source files for specific license terms.

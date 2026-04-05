@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { Layer, EstimationResult, SavedConfig, FPGATarget } from '../types';
+import type { Layer, EstimationResult, SavedConfig, FPGATarget, ExportedConfig } from '../types';
 import { estimateLayersCancellable } from '../api/estimator';
 import { FPGA_TARGETS } from '../utils/constants';
 import { getLocalStorageSizeKB } from '../utils/localStorage';
@@ -34,6 +34,9 @@ interface SimulatorState {
   saveConfig: (name: string) => void;
   loadConfig: (id: string) => void;
   deleteConfig: (id: string) => void;
+  clearAllConfigs: () => void;
+  exportConfigs: () => void;
+  importConfigs: (file: File) => void;
 
   // Theme
   darkMode: boolean;
@@ -120,7 +123,12 @@ export const useSimulatorStore = create<SimulatorState>()(
           }
           // Only show error if this is still the latest request
           if (requestId === latestRequestId) {
-            set({ error: err.message || 'Estimation failed', isLoading: false });
+            let detail = err.response?.data?.detail || err.message || 'Estimation failed';
+            // FastAPI 422 validation errors are arrays of field issues
+            if (Array.isArray(detail)) {
+              detail = detail.map((d: any) => (d.msg ? `${d.loc?.[1] || ''}: ${d.msg}` : JSON.stringify(d))).join('; ');
+            }
+            set({ error: String(detail), isLoading: false });
           }
         }
       },
@@ -160,6 +168,80 @@ export const useSimulatorStore = create<SimulatorState>()(
       },
       deleteConfig: (id) => {
         set((s) => ({ savedConfigs: s.savedConfigs.filter((c) => c.id !== id) }));
+      },
+      clearAllConfigs: () => {
+        set({ savedConfigs: [] });
+        toast.success('All saved configurations cleared.');
+      },
+
+      exportConfigs: () => {
+        const { savedConfigs } = get();
+        if (savedConfigs.length === 0) {
+          toast.error('No configurations to export.');
+          return;
+        }
+        const payload: ExportedConfig = {
+          version: 1,
+          appName: 'fpga-nn-simulator',
+          exportedAt: new Date().toISOString(),
+          configs: savedConfigs,
+        };
+        const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        const date = new Date().toISOString().split('T')[0];
+        a.download = `fpga-configs-${date}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        toast.success(`Exported ${savedConfigs.length} config(s).`);
+      },
+
+      importConfigs: (file) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          try {
+            const parsed = JSON.parse(e.target?.result as string);
+            let configsToImport: SavedConfig[];
+
+            // Support both direct array and exported wrapper format
+            if (
+              parsed &&
+              typeof parsed === 'object' &&
+              parsed.appName === 'fpga-nn-simulator' &&
+              Array.isArray(parsed.configs)
+            ) {
+              configsToImport = parsed.configs;
+            } else if (Array.isArray(parsed)) {
+              configsToImport = parsed;
+            } else {
+              toast.error('Invalid config file format.');
+              return;
+            }
+
+            const existingIds = new Set(get().savedConfigs.map((c) => c.id));
+            const newConfigs = configsToImport.filter(
+              (c) => c.name && c.fpgaTarget && c.clockMhz && Array.isArray(c.layers) && !existingIds.has(c.id)
+            );
+
+            if (newConfigs.length === 0) {
+              if (configsToImport.length > existingIds.size || configsToImport.every((c) => existingIds.has(c.id))) {
+                toast.error('All configurations from that file are already imported.');
+              } else {
+                toast.error('No valid configs found in the file.');
+              }
+              return;
+            }
+
+            set((s) => ({ savedConfigs: [...s.savedConfigs, ...newConfigs] }));
+            toast.success(`Imported ${newConfigs.length} config(s).`);
+          } catch {
+            toast.error('Failed to parse the config file.');
+          }
+        };
+        reader.readAsText(file);
       },
 
       toggleDarkMode: () => set((s) => ({ darkMode: !s.darkMode })),
