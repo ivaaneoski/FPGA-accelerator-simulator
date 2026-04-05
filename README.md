@@ -125,6 +125,9 @@ A full-stack web application that simulates neural network inference on FPGA har
 | Kria KV260 | UltraScale+ | 117,120 | 234,240 | 1,248 | 144 |
 | Virtex UltraScale+ VU9P | UltraScale+ | 1,182,240 | 2,364,480 | 6,840 | 2,160 |
 
+These are approximate values, for actual values please refer to the official documentation of the FPGA.
+
+
 ## Resource Estimation Methodology
 
 ### Precision Multipliers
