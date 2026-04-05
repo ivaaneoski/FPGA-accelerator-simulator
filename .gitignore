@@ -19,7 +19,6 @@ Thumbs.db
 # Project-specific
 .claude/
 *.log
-run.py
 
 # Misc markdown (notes, not docs)
 gemini.md
