@@ -128,7 +128,6 @@ A full-stack web application that simulates neural network inference on FPGA har
 ## Resource Estimation Methodology
 
 ### Precision Multipliers
-
 Different data types consume different numbers of DSP slices and BRAM tiles per MAC operation:
 
 | Precision | Bits | DSPs per MAC | BRAM Factor | LUT Overhead per DSP |
