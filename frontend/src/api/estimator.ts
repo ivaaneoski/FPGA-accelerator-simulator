@@ -54,3 +54,12 @@ export async function getFPGATargets(): Promise<FPGATarget[]> {
   const { data } = await apiClient.get<FPGATarget[]>('/api/fpga-targets');
   return data;
 }
+
+export async function importOnnxFile(file: File): Promise<any> {
+  const formData = new FormData();
+  formData.append('file', file);
+  const { data } = await apiClient.post('/api/import-onnx', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+  return data;
+}

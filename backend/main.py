@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 
-from routers import estimate, targets
+from routers import estimate, targets, onnx_import
 
 load_dotenv()
 
@@ -28,6 +28,7 @@ app.add_middleware(
 
 app.include_router(estimate.router, prefix="/api")
 app.include_router(targets.router, prefix="/api")
+app.include_router(onnx_import.router, prefix="/api")
 
 @app.get("/api/health")
 def health():

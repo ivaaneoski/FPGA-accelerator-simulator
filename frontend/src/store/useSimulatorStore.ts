@@ -14,6 +14,13 @@ interface SimulatorState {
   removeLayer: (id: string) => void;
   clearLayers: () => void;
   reorderLayers: (from: number, to: number) => void;
+  setLayers: (layers: Layer[]) => void;
+
+  // ONNX import
+  importedModelName: string | null;
+  skippedOpsWarning: string[] | null;
+  dismissSkippedOpsWarning: () => void;
+  clearImportedModelName: () => void;
 
   // FPGA target
   selectedFPGA: FPGATarget;
@@ -82,6 +89,15 @@ export const useSimulatorStore = create<SimulatorState>()(
         });
         get().runEstimation();
       },
+      setLayers: (layers) => {
+        set({ layers, result: null, importedModelName: null, skippedOpsWarning: null });
+        get().runEstimation();
+      },
+
+      importedModelName: null,
+      skippedOpsWarning: null,
+      dismissSkippedOpsWarning: () => set({ skippedOpsWarning: null }),
+      clearImportedModelName: () => set({ importedModelName: null }),
 
       setFPGA: (target) => {
         set({ selectedFPGA: target });
