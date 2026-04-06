@@ -1,5 +1,7 @@
 # FPGA-NN Accelerator Simulator
 
+![License](https://img.shields.io/github/license/ivaaneoski/FPGA-accelerator-simulator)
+
 A full-stack web application that simulates neural network inference on FPGA hardware. Estimate resource utilization (LUTs, FFs, DSPs, BRAMs), latency, throughput, and roofline performance bounds **before** committing to time-consuming RTL synthesis. Built for ML hardware researchers, students, and FPGA engineers.
 
 > **This is a simulation tool.** It does not generate synthesizable RTL code or interface with physical FPGA hardware.
@@ -29,6 +31,7 @@ A full-stack web application that simulates neural network inference on FPGA har
 - **Pydantic** — request/response validation
 - **Uvicorn** — ASGI server
 - **NumPy** — numerical computation
+- **ONNX** — model parsing and shape inference for import workflow
 
 ### Frontend
 - **React 18** with **TypeScript 5**
@@ -58,7 +61,8 @@ A full-stack web application that simulates neural network inference on FPGA har
 ┌─────────────────────────┼─────────────────────────────┐
 │  Backend (FastAPI :8000) │                             │
 │  ┌───────────────────────┴──────────────────┐         │
-│  │  Routers: /api/estimate, /api/fpga-targets│        │
+│  │  Routers: /api/estimate, /api/fpga-targets, │      │
+│  │           /api/import-onnx                 │      │
 │  └───────────────────────┬──────────────────┘         │
 │  ┌───────────────────────┴──────────────────┐         │
 │  │  Engine: formulas, estimator, roofline   │         │
@@ -79,17 +83,20 @@ A full-stack web application that simulates neural network inference on FPGA har
 │   │   ├── estimator.py           # Pipeline coordinator — iterates layers, aggregates results
 │   │   ├── formulas.py            # Core math: DSP/LUT/FF/BRAM estimation, roofline analysis
 │   │   ├── roofline.py            # Arithmetic intensity classification
-│   │   └── fpga_targets.py        # FPGA target hardware specs database
+│   │   ├── fpga_targets.py        # FPGA target hardware specs database
+│   │   └── onnx_parser.py         # ONNX graph parsing into simulator layers
 │   ├── models/
 │   │   ├── layer.py               # Conv2DLayer, DenseLayer Pydantic models
 │   │   ├── request.py             # EstimateRequest
 │   │   └── response.py            # EstimationResult, LayerEstimate, etc.
 │   ├── routers/
 │   │   ├── estimate.py            # POST /api/estimate
+│   │   ├── onnx_import.py         # POST /api/import-onnx
 │   │   └── targets.py             # GET /api/fpga-targets
 │   └── tests/
 │       ├── test_formulas.py       # Unit tests for estimation formulas
-│       └── test_endpoints.py      # Integration tests for API endpoints
+│       ├── test_endpoints.py      # Integration tests for API endpoints
+│       └── test_onnx_import.py    # ONNX parser and import endpoint tests
 ├── frontend/
 │   ├── src/
 │   │   ├── api/                   # Axios API client
@@ -107,6 +114,7 @@ A full-stack web application that simulates neural network inference on FPGA har
 ## Features
 
 - **Interactive Layer Builder** — Add Conv2D and Dense layers with configurable dimensions, precision (FP32/INT8/INT4), activation functions, and parallelism factors
+- **ONNX Model Import** — Upload `.onnx` models and auto-populate supported Conv and Dense layers in the builder
 - **Real-Time Estimation** — Resource usage recalculated on every change
 - **Per-Layer Breakdown** — See LUT, DSP, BRAM, FF consumption per layer with contribution charts
 - **Latency Waterfall** — Stacked bar visualization of per-layer latency contributions
@@ -114,6 +122,37 @@ A full-stack web application that simulates neural network inference on FPGA har
 - **Roofline Model Analysis** — Classify each layer as compute-bound or memory-bound via arithmetic intensity
 - **Multi-Configuration Comparison** — Save and compare different design iterations (e.g., INT8 + parallelism 4 vs INT4 + parallelism 8)
 - **5 Pre-Defined FPGA Targets** — from Artix-7 35T (entry-level) to Virtex UltraScale+ VU9P (datacenter-class)
+- **Skipped-Operator Warnings** — Unsupported ONNX operators are reported in the UI instead of failing the full import
+
+### ONNX Import Support
+
+The ONNX importer currently converts these compute operators into simulator layers:
+
+- `Conv` → `conv2d`
+- `Gemm` → `dense`
+- `MatMul` → `dense`
+
+The importer also folds adjacent activation operators into the preceding layer when possible:
+
+- `Relu`
+- `Sigmoid`
+- `Softmax`
+
+These operators are currently skipped and surfaced as warnings in the Layer Builder:
+
+- `GlobalAveragePool`
+- `MaxPool`
+- `AvgPool`
+- `BatchNormalization`
+- `Flatten`
+- `Reshape`
+
+Current import defaults and assumptions:
+
+- Imported layers default to `int8` precision and `parallelism_factor: 4`
+- Dynamic or unknown spatial dimensions fall back to `28x28`
+- The uploaded model name is shown in the builder when available from the ONNX graph
+- Unsupported operators are skipped rather than blocking import of the supported layers
 
 ## Supported FPGA Targets
 
@@ -359,6 +398,47 @@ Submit a neural network layer pipeline for hardware resource estimation.
 | 422 | Invalid layer parameters or malformed request |
 | 500 | Internal estimation error |
 
+### `POST /api/import-onnx`
+
+Upload an ONNX model and convert supported layers into the simulator's layer schema.
+
+**Request:**
+
+- `multipart/form-data`
+- Form field: `file`
+- Accepted file type: `.onnx`
+
+**Response (200):**
+```json
+{
+  "layers": [
+    {
+      "name": "Conv1",
+      "type": "conv2d",
+      "input_width": 28,
+      "input_height": 28,
+      "input_channels": 3,
+      "filters": 16,
+      "kernel_size": 3,
+      "stride": 1,
+      "padding": "valid",
+      "activation": "relu",
+      "precision": "int8",
+      "parallelism_factor": 4
+    }
+  ],
+  "skipped_ops": ["BatchNormalization", "MaxPool"],
+  "model_name": "example_model"
+}
+```
+
+**Error Responses:**
+
+| Status | Condition |
+|--------|-----------|
+| 422 | Invalid file type, unreadable upload, or ONNX parsing error |
+| 500 | Unexpected ONNX import failure |
+
 ## Installation
 
 ### Prerequisites
@@ -388,6 +468,7 @@ uvicorn[standard]==0.29.0
 numpy==1.26.4
 pydantic==2.7.1
 python-dotenv==1.0.1
+onnx>=1.15.0
 ```
 
 ### Frontend
@@ -435,6 +516,7 @@ python -m pytest tests/ -v
 Covers:
 - `test_formulas.py` — unit tests for Conv2D and Dense estimation logic
 - `test_endpoints.py` — integration tests for API routes
+- `test_onnx_import.py` — parser and `/api/import-onnx` coverage for valid models, schema compatibility, and skipped unsupported ops
 
 ## Academic References
 
@@ -447,4 +529,4 @@ The estimation models are derived from the following publications:
 
 ## License
 
-This project is intended for research and educational purposes. See individual source files for specific license terms.
+This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.

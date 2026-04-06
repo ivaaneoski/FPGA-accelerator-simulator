@@ -105,3 +105,10 @@ export interface EstimateRequest {
   clock_mhz: number;
   layers: any[]; // Using any to simplify mapping Layer objects directly
 }
+
+export interface OnnxImportResponse {
+  layers: any[]; // snake_case layer dicts from backend
+  skipped_ops: string[];
+  model_name: string;
+}
+
