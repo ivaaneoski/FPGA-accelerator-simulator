@@ -1,4 +1,4 @@
-﻿import pytest
+import pytest
 import math
 from engine.formulas import estimate_conv2d, estimate_dense, estimate_brams, compute_roofline_bound
 
@@ -93,7 +93,7 @@ class TestConv2DEstimation:
                             padding="same", activation="relu",
                             precision="int8", parallelism_factor=1, clock_mhz=200)
         assert "confidence_margin" in r
-        assert r["confidence_margin"] == "Â\u00b120%"
+        assert r["confidence_margin"] == "±20%"
 
 
 class TestDenseEstimation:

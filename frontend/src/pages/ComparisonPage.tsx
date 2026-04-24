@@ -1,15 +1,16 @@
-import { useSimulatorStore } from '../store/useSimulatorStore';
+import { isValidSavedConfig, useSimulatorStore } from '../store/useSimulatorStore';
 import { ComparisonTable } from '../components/comparison/ComparisonTable';
 import { ConfigRadarChart } from '../components/comparison/RadarChart';
 import type { RadarConfig } from '../components/comparison/RadarChart';
 
 export function ComparisonPage() {
   const { savedConfigs } = useSimulatorStore();
+  const validConfigs = savedConfigs.filter(isValidSavedConfig);
 
-  const maxLatency = Math.max(...savedConfigs.map(c => c.result.total.latency_us), 1);
-  const maxTp = Math.max(...savedConfigs.map(c => c.result.total.throughput_inf_per_sec), 1);
+  const maxLatency = Math.max(...validConfigs.map(c => c.result.total.latency_us), 1);
+  const maxTp = Math.max(...validConfigs.map(c => c.result.total.throughput_inf_per_sec), 1);
 
-  const radarConfigs: RadarConfig[] = savedConfigs.slice(-3).map(cfg => ({
+  const radarConfigs: RadarConfig[] = validConfigs.slice(-3).map(cfg => ({
     name: cfg.name,
     lutPct: cfg.result.fpga_utilization.lut_pct,
     dspPct: cfg.result.fpga_utilization.dsp_pct,

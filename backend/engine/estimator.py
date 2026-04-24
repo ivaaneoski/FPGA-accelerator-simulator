@@ -16,7 +16,7 @@ def estimate_pipeline(layers, target_id: str, clock_mhz: int):
     results_layers = []
 
     for layer in layers:
-        layer_dict = layer.dict()
+        layer_dict = layer.model_dump()
         layer_type = layer_dict.pop("type")
         layer_name = layer_dict.pop("name")
         layer_id = layer_dict.pop("id", None) # if id was passed

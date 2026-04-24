@@ -53,6 +53,40 @@ interface SimulatorState {
 // Track the latest request ID so we can ignore stale responses
 let latestRequestId = 0;
 
+function isFiniteNumber(value: unknown): value is number {
+  return typeof value === 'number' && Number.isFinite(value);
+}
+
+export function isValidSavedConfig(config: unknown): config is SavedConfig {
+  if (!config || typeof config !== 'object') return false;
+
+  const c = config as Partial<SavedConfig>;
+  const total = c.result?.total;
+  const utilization = c.result?.fpga_utilization;
+
+  return (
+    typeof c.id === 'string' &&
+    typeof c.name === 'string' &&
+    typeof c.fpgaTarget === 'string' &&
+    isFiniteNumber(c.clockMhz) &&
+    Array.isArray(c.layers) &&
+    !!total &&
+    isFiniteNumber(total.luts) &&
+    isFiniteNumber(total.dsps) &&
+    isFiniteNumber(total.brams) &&
+    isFiniteNumber(total.latency_us) &&
+    isFiniteNumber(total.throughput_inf_per_sec) &&
+    !!utilization &&
+    isFiniteNumber(utilization.lut_pct) &&
+    isFiniteNumber(utilization.dsp_pct) &&
+    isFiniteNumber(utilization.bram_pct)
+  );
+}
+
+function normalizeSavedConfigs(configs: unknown): SavedConfig[] {
+  return Array.isArray(configs) ? configs.filter(isValidSavedConfig) : [];
+}
+
 export const useSimulatorStore = create<SimulatorState>()(
   persist(
     (set, get) => ({
@@ -239,7 +273,7 @@ export const useSimulatorStore = create<SimulatorState>()(
 
             const existingIds = new Set(get().savedConfigs.map((c) => c.id));
             const newConfigs = configsToImport.filter(
-              (c) => c.name && c.fpgaTarget && c.clockMhz && Array.isArray(c.layers) && !existingIds.has(c.id)
+              (c) => isValidSavedConfig(c) && !existingIds.has(c.id)
             );
 
             if (newConfigs.length === 0) {
@@ -265,6 +299,15 @@ export const useSimulatorStore = create<SimulatorState>()(
     {
       name: 'fpga-simulator-store',
       partialize: (s) => ({ savedConfigs: s.savedConfigs, darkMode: s.darkMode }),
+      merge: (persistedState, currentState) => {
+        const persisted = persistedState as Partial<SimulatorState> | undefined;
+        return {
+          ...currentState,
+          ...persisted,
+          savedConfigs: normalizeSavedConfigs(persisted?.savedConfigs),
+          darkMode: typeof persisted?.darkMode === 'boolean' ? persisted.darkMode : currentState.darkMode,
+        };
+      },
     }
   )
 );

@@ -1,4 +1,4 @@
-﻿import math
+import math
 
 PRECISION_BITS = {
     "fp32": 32,
@@ -117,7 +117,7 @@ def estimate_conv2d(input_w: int, input_h: int, input_channels: int, filters: in
         "latency_us": round(latency_us, 4),
         "macs": macs,
         "parameters": parameters,
-        "confidence_margin": "Â\u00b120%",
+        "confidence_margin": "±20%",
         "arithmetic_intensity": roof["arithmetic_intensity"],
         "roofline_bound": bound,
         "effective_speedup": round(eff_speedup, 2),
@@ -166,7 +166,7 @@ def estimate_dense(input_neurons: int, output_neurons: int, activation: str, pre
         "latency_us": round(latency_us, 4),
         "macs": macs,
         "parameters": parameters,
-        "confidence_margin": "Â\u00b120%",
+        "confidence_margin": "±20%",
         "arithmetic_intensity": roof["arithmetic_intensity"],
         "roofline_bound": bound,
         "effective_speedup": round(eff_speedup, 2),

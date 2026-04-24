@@ -1,12 +1,13 @@
 import { Trash2, Play } from 'lucide-react';
-import { useSimulatorStore } from '../../store/useSimulatorStore';
+import { isValidSavedConfig, useSimulatorStore } from '../../store/useSimulatorStore';
 import { cn } from '../shared/Badge';
 import { fmtInt, fmtLatency, fmtThroughput } from '../../utils/formatters';
 
 export function ComparisonTable() {
   const { savedConfigs, loadConfig, deleteConfig } = useSimulatorStore();
+  const validConfigs = savedConfigs.filter(isValidSavedConfig);
 
-  if (!savedConfigs.length) {
+  if (!validConfigs.length) {
     return (
       <div className="bg-[#f7f7f5] dark:bg-[#202020] border border-notion-border dark:border-notionDark-border rounded p-8 text-center shadow-[0_1px_2px_rgba(0,0,0,0.02)] hover:shadow-md hover:-translate-y-0.5 transition-all duration-300">
         <p className="text-[13px] text-notion-textSecondary dark:text-notionDark-textSecondary">No saved configurations. Save a configuration from the Simulator page to compare.</p>
@@ -15,11 +16,11 @@ export function ComparisonTable() {
   }
 
   // Find best values for highlighting
-  const minLUTs = Math.min(...savedConfigs.map(c => c.result.total.luts));
-  const minDSPs = Math.min(...savedConfigs.map(c => c.result.total.dsps));
-  const minBRAMs = Math.min(...savedConfigs.map(c => c.result.total.brams));
-  const minLat = Math.min(...savedConfigs.map(c => c.result.total.latency_us));
-  const maxTp = Math.max(...savedConfigs.map(c => c.result.total.throughput_inf_per_sec));
+  const minLUTs = Math.min(...validConfigs.map(c => c.result.total.luts));
+  const minDSPs = Math.min(...validConfigs.map(c => c.result.total.dsps));
+  const minBRAMs = Math.min(...validConfigs.map(c => c.result.total.brams));
+  const minLat = Math.min(...validConfigs.map(c => c.result.total.latency_us));
+  const maxTp = Math.max(...validConfigs.map(c => c.result.total.throughput_inf_per_sec));
 
   return (
     <div className="bg-notion-bg dark:bg-notionDark-bg border border-notion-border dark:border-notionDark-border rounded shadow-[0_1px_2px_rgba(0,0,0,0.03)] overflow-x-auto hover:shadow-md hover:-translate-y-0.5 transition-all duration-300">
@@ -37,7 +38,7 @@ export function ComparisonTable() {
           </tr>
         </thead>
         <tbody className="divide-y divide-notion-border dark:divide-notionDark-border">
-          {savedConfigs.map((cfg) => {
+          {validConfigs.map((cfg) => {
             const r = cfg.result.total;
             return (
               <tr key={cfg.id} className="hover:bg-notion-bgHover dark:hover:bg-notionDark-bgHover transition-colors">

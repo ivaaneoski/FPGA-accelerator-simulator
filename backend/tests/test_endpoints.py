@@ -1,4 +1,4 @@
-﻿import pytest
+import pytest
 import time
 from fastapi.testclient import TestClient
 from main import app
@@ -79,7 +79,7 @@ class TestEstimateEndpoint:
         payload = {"fpga_target": "zynq_ultrascale_zu3eg",
                    "clock_mhz": 200, "layers": [VALID_CONV2D_LAYER]}
         layer = client.post("/api/estimate", json=payload).json()["layers"][0]
-        assert layer["confidence_margin"] == "Â\u00b120%"
+        assert layer["confidence_margin"] == "±20%"
 
     def test_layer_result_has_roofline_bound(self):
         payload = {"fpga_target": "zynq_ultrascale_zu3eg",
