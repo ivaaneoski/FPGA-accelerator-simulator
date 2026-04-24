@@ -114,8 +114,9 @@ A full-stack web application that simulates neural network inference on FPGA har
 ## Features
 
 - **Interactive Layer Builder** — Add Conv2D and Dense layers with configurable dimensions, precision (FP32/INT8/INT4), activation functions, and parallelism factors
-- **ONNX Model Import** — Upload `.onnx` models and auto-populate supported Conv and Dense layers in the builder
+- **ONNX Model Import Review** — Upload `.onnx` models, inspect parsed Conv/Dense layers and skipped ops, then apply the reviewed layer stack to the builder
 - **Real-Time Estimation** — Resource usage recalculated on every change
+- **Design Recommendations** — Get actionable tuning hints for capacity pressure, memory-bound layers, latency bottlenecks, and precision choices
 - **Per-Layer Breakdown** — See LUT, DSP, BRAM, FF consumption per layer with contribution charts
 - **Latency Waterfall** — Stacked bar visualization of per-layer latency contributions
 - **FPGA Utilization Gauges** — Percentage-based gauges against each target device's limits
@@ -151,8 +152,20 @@ Current import defaults and assumptions:
 
 - Imported layers default to `int8` precision and `parallelism_factor: 4`
 - Dynamic or unknown spatial dimensions fall back to `28x28`
-- The uploaded model name is shown in the builder when available from the ONNX graph
-- Unsupported operators are skipped rather than blocking import of the supported layers
+- Uploads open a review modal before replacing the current builder layers
+- The review modal lists parsed layers, inferred dimensions, precision, parallelism, activation, and skipped operators
+- The uploaded model name is shown in the builder after applying the reviewed import
+- Unsupported operators are skipped rather than blocking review or import of the supported layers
+
+### Design Recommendations
+
+After each successful estimation, the simulator highlights practical next steps:
+
+- Capacity warnings when LUT, FF, DSP, or BRAM utilization exceeds or approaches the selected FPGA limit
+- Memory-bound layer guidance when more parallelism is unlikely to scale linearly
+- Slowest-layer bottleneck callouts when one layer dominates total latency
+- FP32 precision hints when quantization may reduce DSP and BRAM pressure
+- Balanced-design confirmation when no obvious resource or latency issue is detected
 
 ## Supported FPGA Targets
 

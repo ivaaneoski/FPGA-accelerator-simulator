@@ -2,6 +2,7 @@ import { ResourceCard } from '../components/simulator/ResourceCard';
 import { UtilizationGauge } from '../components/simulator/UtilizationGauge';
 import { ResourceBreakdownChart } from '../components/simulator/ResourceBreakdownChart';
 import { LatencyWaterfall } from '../components/simulator/LatencyWaterfall';
+import { DesignRecommendations } from '../components/simulator/DesignRecommendations';
 import { useSimulatorStore } from '../store/useSimulatorStore';
 import { Cpu, AlertTriangle, XCircle } from 'lucide-react';
 import { fmtInt, fmtLatency } from '../utils/formatters';
@@ -101,6 +102,10 @@ export function SimulatorPage() {
               <LatencyWaterfall />
             </div>
           </div>
+
+          {result && (
+            <DesignRecommendations result={result} selectedFPGA={selectedFPGA} layers={layers} />
+          )}
 
           <div className="bg-notion-bg dark:bg-notionDark-bg border border-notion-border dark:border-notionDark-border rounded px-6 py-5 shadow-[0_1px_2px_rgba(0,0,0,0.03)] hover:shadow-md hover:-translate-y-0.5 transition-all duration-300">
             <h3 className="text-[16px] font-semibold text-notion-text dark:text-notionDark-text mb-6">FPGA Utilization</h3>
